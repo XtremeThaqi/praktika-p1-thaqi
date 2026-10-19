@@ -100,4 +100,4 @@ Përdoreni vetëm kur serveri nuk është tashmë aktiv. Këto janë vlera për 
 
 Shihni [planin](docs/development-plan.md) dhe [skenarët e pranimit](docs/acceptance-tests.md). T-01–T-14 mbeten në pritje deri në implementimin e funksioneve. Screenshots dhe udhëzimet e demonstrimit shtohen me rrjedhat kryesore.
 
-Punohet në feature branches me commits që përfaqësojnë ndryshime reale. Bashkimi në `main` bëhet përmes Pull Request pasi të kalojnë kontrollet. Nuk ka ende remote GitHub; emri i kërkuar është `praktika-p1-thaqi`. `.env`, varësitë dhe build-et përjashtohen nga Git.
+Punohet në feature branches me commits që përfaqësojnë ndryshime reale. Bashkimi në `main` bëhet përmes Pull Request pasi të kalojnë kontrollet. Repository në GitHub: [XtremeThaqi/praktika-p1-thaqi](https://github.com/XtremeThaqi/praktika-p1-thaqi). Remote `origin` përdor `https://github.com/XtremeThaqi/praktika-p1-thaqi.git`. `.env`, varësitë dhe build-et përjashtohen nga Git.
