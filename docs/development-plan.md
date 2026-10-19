@@ -1,0 +1,81 @@
+# Development plan
+
+Source: Projekti-01-Katalogu-i-bizneseve.pdf, version 1.0, 6 October 2026, all 12 pages reviewed on 19 October.
+
+Deadline: 1 November 2026, 23:59. Confirm the mentor's deadline timezone before delivery. Work begins on 19 October; no earlier activity will be fabricated.
+
+## Architecture
+
+One repository, separate `frontend/` and `backend/` applications. React owns presentation and URL state; Laravel owns all data access and business rules. MySQL persists the data. Use ordinary controllers, Form Requests, Eloquent relationships, API Resources and policies rather than repositories or a custom service framework.
+
+Laravel 12 supports the installed PHP 8.2. Sanctum cookie sessions avoid storing bearer tokens in browser storage. Use the Vite proxy locally and same-origin routing in production; auth implementation must include CSRF initialization, login throttling, session regeneration and logout invalidation. There is no public registration.
+
+Frontend folders grow as needed: `pages/` (including `admin/`), `components/`, `layouts/`, `lib/`, `hooks/`. Do not create empty abstractions in advance. Public business lists always come from the API.
+
+## Database design
+
+| Table | Fields and relationships planned |
+| --- | --- |
+| users | Name, unique email, hashed password, administrator authorization |
+| categories | Unique name and slug; has many businesses |
+| settlements | Unique name and slug; has many businesses |
+| businesses | Category and settlement foreign keys, unique slug, name, description, phone, address, coordinates, location verification, status, optional email/website/social links, featured and demo flags |
+| services | Unique name and slug |
+| business_service | Unique business/service pair; both foreign keys |
+| business_images | Business foreign key, storage path, alt text, kind and display order |
+| business_hours | Business foreign key, weekday, opening/closing times and closed flag; absence means unpublished hours |
+| advertisements | Business foreign key, placement, image/alt, destination, start/end timestamps, priority and enabled flag |
+
+Category and settlement deletion is restricted while referenced. Services detach explicitly. Publication requires name, description, category, phone, address, settlement, valid coordinates and confirmation that the pin matches the address. Drafts may be incomplete. Archived records remain stored; related ads are disabled. Public queries and direct profile lookups exclude drafts and archived businesses.
+
+Persist advertisement timestamps in UTC and edit/display in Europe/Belgrade (Lipjan local time). A valid ad has a published business, is enabled, and satisfies `starts_at <= now < ends_at`. Reject `ends_at <= starts_at`. Select highest priority first, then oldest creation time, then ID for a deterministic tie. Ad selection never changes business matches or counts.
+
+## API plan
+
+| Access | Routes |
+| --- | --- |
+| Public | GET `/api/businesses`, `/api/businesses/{slug}` |
+| Public | GET `/api/categories`, `/api/settlements`, `/api/services` |
+| Public | GET `/api/advertisements?placement=home_banner` or `results_sidebar` |
+| Authentication | Sanctum CSRF cookie; POST login/logout; GET current administrator |
+| Admin | Dashboard counts; business list/create/update/status actions |
+| Admin | Category, settlement, service and advertisement CRUD; image upload |
+
+List parameters: `q`, `category`, `settlement`, `service`, `has_website`, `has_hours`, `sort`, `page`. Trim search, use case-insensitive matching on name/description, combine filters with AND, sort before pagination, return 12 records plus total. Validate parameters and use stable ID tie-breaks. URL query parameters are the frontend source of truth; filter changes reset page to 1. Clearing filters restores defaults.
+
+## Remaining working days
+
+| Date | Deliverable |
+| --- | --- |
+| Oct 19 | Setup, specification mapping; dependency installation currently blocked |
+| Oct 20 | MySQL migrations, relationships and labeled demo seeders |
+| Oct 21 | Public API and frontend API connection |
+| Oct 22 | Homepage and listing/search/filter/sort/pagination |
+| Oct 23 | URL persistence, profiles and contact actions |
+| Oct 26 | Leaflet maps, admin authentication and authorization |
+| Oct 27 | Business CRUD, publication/archive validation |
+| Oct 28 | Category, settlement and service management |
+| Oct 29 | Advertisement management and scheduling |
+| Oct 30 | Acceptance testing, accessibility, security and README |
+| Oct 31–Nov 1 | Buffer, demo, presentation and final main review |
+
+Each workday needs genuine completed work and a meaningful commit. This is an aggressive recovery schedule, not a claim that the original four-week plan was followed. Reassess scope daily; optional features stay out. Work remains on branches and enters main through reviewed PRs. GitHub remote and mentor identity have not been supplied.
+
+## Content and presentation requirements
+
+- Natural Albanian; student-project disclaimer and visible correction/advertising contact. Obtain a real contact destination before delivery.
+- Homepage search by Enter/button, dynamic categories, selected businesses and a separate labeled sponsored banner.
+- Consistent cards with fallback images, clamped summaries, total count, clear loading/empty/retry states.
+- Profiles show full text, working tel/directions/external links; omit unknown optional data and show “Orari nuk është publikuar”.
+- Leaflet profile pin and current-page map labeled “Bizneset e kësaj faqeje”; pins follow filters/page and open profiles. Missing coordinates never default to Lipjan center. Attribution remains visible; map failure preserves address and contacts.
+- Admin totals from stored data; status filters; named confirmation for impactful actions; field-level errors preserve input.
+- Ads visibly marked “Reklamë” or “E sponsorizuar”, separate from organic results, responsive placements; absent ads hide or show a real contact invitation.
+- Validate image type/size and external URL schemes on the server. Render business text as text. Hash passwords and keep secrets out of Git.
+- Target 30 demo businesses, 6 categories, 4 settlements, varied services/photos/hours/contacts, at least one draft/archive and every ad state. Label simulated businesses and imagery; never imply verification. Use permitted image sources.
+- Test phone/tablet/desktop, keyboard focus, visible labels, alternative text and errors conveyed beyond color.
+
+Delivery: GitHub `praktika-p1-thaqi`, mentor collaborator, migrations/seeders, sanitized `.env.example`, README with screenshots, live demo or 2–3 minute recording and a 5–7 minute presentation. No payments, ratings, chat, mobile app or owner accounts.
+
+## Initial branch
+
+`chore/project-setup`: source/configuration and documentation only. Resume by installing dependencies, committing lockfiles, scaffolding Laravel, switching its configuration to MySQL, adding the API health check, then running build and baseline tests. Do not move to schema work before setup is verified.
