@@ -47,7 +47,7 @@ List parameters: `q`, `category`, `settlement`, `service`, `has_website`, `has_h
 
 | Date | Deliverable |
 | --- | --- |
-| Oct 19 | Setup, specification mapping; dependency installation currently blocked |
+| Oct 19 | Setup and specification mapping; dependencies, Laravel, Vite and local database connection verified |
 | Oct 20 | MySQL migrations, relationships and labeled demo seeders |
 | Oct 21 | Public API and frontend API connection |
 | Oct 22 | Homepage and listing/search/filter/sort/pagination |
@@ -78,4 +78,6 @@ Delivery: GitHub `praktika-p1-thaqi`, mentor collaborator, migrations/seeders, s
 
 ## Initial branch
 
-`chore/project-setup`: source/configuration and documentation only. Resume by installing dependencies, committing lockfiles, scaffolding Laravel, switching its configuration to MySQL, adding the API health check, then running build and baseline tests. Do not move to schema work before setup is verified.
+`chore/project-setup`: dependencies and lockfiles, Laravel scaffold, MySQL configuration, API health check, frontend connection check, build and baseline tests. Do not move to schema work before setup is verified.
+
+Setup update, 19 October: the existing repository was moved to `C:\Users\ET\Documents\praktika-p1-thaqi`. All nine tracked files matched commit `90fc0c8`; the working tree was clean and `git fsck --full` passed before development resumed. Composer/npm dependencies and lockfiles are now installed. Laravel 12, Sanctum, baseline migrations, the API health endpoint and the development-only React connection check are configured. The installed XAMPP database is MariaDB 10.4.32, tested using Laravel's MySQL driver; verification against actual MySQL 8 remains outstanding. See README for repeatable setup and checks. The next logical stage is the directory schema and labeled demo seeders.

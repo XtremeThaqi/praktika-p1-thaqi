@@ -1,5 +1,6 @@
 import React from 'react'
 import { createRoot } from 'react-dom/client'
+import ConnectionStatus from './ConnectionStatus'
 import './styles.css'
 
 function App() {
@@ -19,6 +20,7 @@ function App() {
           Po përgatisim platformën për gjetjen e bizneseve, shërbimeve dhe kontakteve lokale.
           Katalogu do të publikohet pasi të përfundojë zhvillimi dhe testimi.
         </p>
+        {import.meta.env.DEV && <ConnectionStatus />}
       </main>
       <footer className="mx-auto max-w-6xl border-t border-slate-200 px-6 py-6 text-sm text-slate-600">
         Projekt studentor i praktikës profesionale. Nuk është regjistër zyrtar i komunës.
