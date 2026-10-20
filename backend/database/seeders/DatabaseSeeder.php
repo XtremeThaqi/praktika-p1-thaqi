@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
@@ -11,6 +12,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Business demo data will be added with the directory schema.
+        DB::transaction(function () {
+            $this->call([
+                DirectoryLookupSeeder::class,
+                DemoBusinessSeeder::class,
+                DemoAdvertisementSeeder::class,
+            ]);
+        });
     }
 }

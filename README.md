@@ -6,7 +6,7 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 Konfigurimi fillestar funksionon: React me JSX dhe Tailwind, Laravel 12 me Sanctum, lidhja me bazën e të dhënave dhe proxy i Vite. Faqja e zhvillimit kontrollon `/api/health` dhe tregon gjendjen e lidhjes, me mundësi riprovimi. Ky kontroll nuk shfaqet në build-in e prodhimit.
 
-Katalogu, kërkimi dhe administrimi ende nuk janë implementuar. Sanctum është instaluar dhe konfiguruar për sesione; hyrja dhe autorizimi do të zhvillohen me pjesën administrative. Nuk është krijuar llogari administratori ose biznes demonstrues.
+Skema e katalogut, marrëdhëniet Eloquent dhe të dhënat demo janë implementuar. API-ja publike, katalogu në frontend, kërkimi dhe administrimi ende nuk janë implementuar. Sanctum është instaluar dhe konfiguruar për sesione; hyrja dhe autorizimi do të zhvillohen me pjesën administrative. Nuk është krijuar llogari administratori.
 
 ## Teknologjitë dhe kërkesat
 
@@ -48,7 +48,23 @@ php artisan migrate
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
-Migrimet aktuale krijojnë vetëm tabelat bazë të Laravel dhe Sanctum. `DatabaseSeeder` është bosh; seeders për bizneset shtohen bashkë me skemën e katalogut.
+Migrimet ruajnë tabelat e Laravel/Sanctum dhe shtojnë `categories`, `settlements`, `services`, `businesses`, `business_service`, `business_hours`, `business_images` dhe `advertisements`.
+
+Për të mbushur bazën me të dhëna demonstrimi, nga `backend/`:
+
+```powershell
+php artisan db:seed
+```
+
+Krijohen 30 biznese demo (26 të publikuara, 2 drafte, 2 të arkivuara), 6 kategori, 4 vendbanime, 10 shërbime, 85 lidhje biznes-shërbim, 140 rreshta orari, 21 imazhe dhe 6 reklama. Reklamat përfshijnë 3 aktuale, 1 të planifikuar, 1 të skaduar dhe 1 të çaktivizuar. Datat llogariten në UTC nga koha e ekzekutimit; `is_active` është çelësi i aktivizimit, ndërsa scope `active()` kontrollon edhe datat dhe biznesin e publikuar.
+
+Seeders mund të ekzekutohen përsëri pa dyfishuar rekordet ose ndryshuar ID-të. Ata rifreskojnë bizneset demo dhe afatet e reklamave demo, prandaj nuk duhen përdorur për të ruajtur ndryshime manuale mbi këto rekorde. Përdoruesit dhe bizneset jashtë grupit demo ruhen. `DatabaseSeeder` i ekzekuton të tre seeders brenda një transaksioni; një konflikt me një slug ekzistues jashtë grupit demo ndërpret transaksionin.
+
+Bizneset kanë `is_demo=true` dhe emra me shenjën “(Demo)”. Kontaktet, adresat, koordinatat dhe ilustrimet janë të simuluara. `location_verified=false`; asnjë pin nuk paraqitet si i verifikuar. Domenet përdorin `example.com`. Ilustrimet SVG janë krijuar për këtë projekt dhe shënohen “DEMO”; gjenden te `backend/public/demo/`.
+
+Drafteve mund t'u mungojnë të dhëna. Kategoritë dhe vendbanimet nuk fshihen kur përdoren nga biznese; shërbimet duhen shkëputur përpara fshirjes. Fshirja fizike e një biznesi heq lidhjet, oraret, imazhet dhe reklamat e tij. Arkivimi do të përdorë statusin, jo fshirjen fizike. Rrjedha dhe validimi i publikimit do të shtohen me API-në administrative.
+
+Orari përdor ditët `0` (e diel) deri `6` (e shtunë), me një interval për ditë. Mungesa e rreshtave do të thotë orar i papublikuar. Ditët e mbyllura kanë të dy orët `null`; ora e mbylljes më e vogël se ajo e hapjes nënkupton ditën pasuese. Kufizimet e koordinatave, ditëve/orëve dhe intervalit të reklamës aplikohen në MariaDB/MySQL. SQLite përdoret për kontrolle të shpejta, pa këto CHECK shtesë. Për MySQL kërkohet 8.0.16+ për zbatimin e [CHECK constraints](https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html); MySQL 8 nuk është testuar ende.
 
 Në një terminal tjetër, nga rrënja e projektit:
 
@@ -74,7 +90,17 @@ php artisan migrate:status
 npm run build
 ```
 
-Testet automatike përdorin SQLite në memorie dhe nuk ndryshojnë bazën lokale. Testi i endpoint-it mbulon lidhjen funksionale dhe përgjigjen `503` pa detaje private kur baza nuk është e arritshme.
+Komanda e zakonshme e testeve përdor SQLite në memorie dhe nuk ndryshon bazën lokale. Testi i endpoint-it mbulon lidhjen funksionale dhe përgjigjen `503` pa detaje private kur baza nuk është e arritshme.
+
+Për testet MariaDB/MySQL, krijoni veçmas `lipjan_directory_test` me `utf8mb4_unicode_ci` dhe jepini përdoruesit lokal të aplikacionit leje mbi atë bazë shtesë. Kopjoni `.env` në `.env.testing`, vendosni `APP_ENV=testing` dhe `DB_DATABASE=lipjan_directory_test`, pastaj ekzekutoni:
+
+```powershell
+php vendor/bin/phpunit --configuration phpunit.mysql.xml
+```
+
+Në këtë kompjuter konfigurimi është bërë tashmë. `.env.testing` përjashtohet nga Git. Suite-a MariaDB rindërton vetëm bazën e testeve; mbrojtja te `tests/TestCase.php` e refuzon një lidhje MySQL që përdor emër tjetër baze. Mos përdorni bazën e zhvillimit për testet me `RefreshDatabase`. PHPUnit thirret drejtpërdrejt këtu, që konfigurimi alternativ të mos dyfishohet nga komanda Artisan.
+
+Më 20 tetor 2026 kaluan 39 teste me 109 assertions në MariaDB 10.4.32. Në SQLite kaluan 25 teste me 95 assertions dhe u anashkaluan 14 kontrolle specifike për MySQL/MariaDB. U verifikuan edhe rollback/riekzekutimi i 8 migrimeve të reja në bazën e testeve dhe seed-imi i përsëritur në bazën lokale. Këto nuk janë kalim i skenarëve fund-më-fund T-01–T-14.
 
 Për të provuar lidhjen reale përmes Vite me të dy serverët aktivë:
 

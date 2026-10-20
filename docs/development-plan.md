@@ -59,7 +59,7 @@ List parameters: `q`, `category`, `settlement`, `service`, `has_website`, `has_h
 | Oct 30 | Acceptance testing, accessibility, security and README |
 | Oct 31–Nov 1 | Buffer, demo, presentation and final main review |
 
-Each workday needs genuine completed work and a meaningful commit. This is an aggressive recovery schedule, not a claim that the original four-week plan was followed. Reassess scope daily; optional features stay out. Work remains on branches and enters main through reviewed PRs. GitHub remote and mentor identity have not been supplied.
+Each workday needs genuine completed work and a meaningful commit. This is an aggressive recovery schedule, not a claim that the original four-week plan was followed. Reassess scope daily; optional features stay out. Work remains on branches and enters main through reviewed PRs. The GitHub remote is `XtremeThaqi/praktika-p1-thaqi`; mentor identity has not been supplied.
 
 ## Content and presentation requirements
 
@@ -75,6 +75,16 @@ Each workday needs genuine completed work and a meaningful commit. This is an ag
 - Test phone/tablet/desktop, keyboard focus, visible labels, alternative text and errors conveyed beyond color.
 
 Delivery: GitHub `praktika-p1-thaqi`, mentor collaborator, migrations/seeders, sanitized `.env.example`, README with screenshots, live demo or 2–3 minute recording and a 5–7 minute presentation. No payments, ratings, chat, mobile app or owner accounts.
+
+## Day 2 — 20 October
+
+Branch: `feat/business-database`, based on synchronized `main` after PR #1 was merged. Added the eight directory tables and seven conventional Eloquent models. Foreign keys restrict deletion of referenced lookups, prevent orphan records and cascade physical business deletion to its owned data. Draft details are nullable. MySQL/MariaDB CHECK constraints cover paired/ranged coordinates, weekdays, consistent opening times and positive advertisement duration; status and placement use enums. Opening hours use one interval per day, including overnight intervals where closing time is earlier than opening time.
+
+Demo seeders produce 30 explicitly labeled businesses, 6 categories, 4 settlements, 10 services, 85 service links, 140 opening-hour rows, 21 images and 6 advertisements. Of the businesses, 26 are published, 2 draft and 2 archived. Coordinates and contacts are simulated and location verification stays false. Demo artwork is local and labeled. Re-running seeders preserves IDs/counts, updates only seed-owned demo businesses and ad schedules, and retains users/non-demo businesses.
+
+Verified on MariaDB 10.4.32 with the MySQL driver: all migrations, rollback/reapply on an isolated test database, repeat seeding, foreign keys, uniqueness, ranges, ad timing boundaries and Eloquent relationships. The MariaDB suite passes 39 tests/109 assertions; SQLite passes 25/95 with 14 engine-specific tests skipped. Frontend source is unchanged and its production build passes. MySQL 8 and T-01–T-14 remain unverified. Publication validation and archive actions will be implemented with the administrative API, not inferred from database tests.
+
+Next: public API endpoints and the existing frontend's API connection on 21 October. No listing UI or administrative interface was implemented during Day 2.
 
 ## Initial branch
 
