@@ -68,7 +68,8 @@ class BusinessFiltersTest extends TestCase
         $this->seed();
         Business::published()->update(['created_at' => now()->subDay()]);
         $newest = Business::where('slug', 'demo-biznes-01')->firstOrFail();
-        $newest->update(['created_at' => now()]);
+        $newest->forceFill(['created_at' => now()])->save();
+        $this->getJson('/api/businesses?sort=newest')->assertOk()->assertJsonPath('data.0.id', $newest->id);
         foreach (['name_asc', 'name_desc', 'newest'] as $sort) {
             $query = Business::published();
             if ($sort === 'newest') {
