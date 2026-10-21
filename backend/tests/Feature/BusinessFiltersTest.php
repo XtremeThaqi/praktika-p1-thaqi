@@ -83,6 +83,7 @@ class BusinessFiltersTest extends TestCase
                 $response = $this->getJson('/api/businesses?'.http_build_query(['q' => 'Demo', 'sort' => $sort, 'page' => $page]))->assertOk();
                 $actual = array_merge($actual, array_column($response->json('data'), 'id'));
                 if ($page === 1) {
+                    $this->assertStringStartsWith('/api/businesses?', $response->json('links.next'));
                     $this->assertStringContainsString('sort='.$sort, $response->json('links.next'));
                     $this->assertStringContainsString('q=Demo', $response->json('links.next'));
                 }

@@ -51,7 +51,8 @@ class BusinessController extends Controller
                 $query->orderBy('name');
         }
 
-        $businesses = $query->orderBy('id')->paginate(12)->withQueryString();
+        $businesses = $query->orderBy('id')->paginate(12)
+            ->withPath('/api/businesses')->withQueryString();
 
         return BusinessResource::collection($businesses);
     }
