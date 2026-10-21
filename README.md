@@ -4,9 +4,9 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 ## Gjendja aktuale
 
-Konfigurimi fillestar funksionon: React me JSX dhe Tailwind, Laravel 12 me Sanctum, lidhja me bazën e të dhënave dhe proxy i Vite. Faqja e zhvillimit kontrollon `/api/health` dhe tregon gjendjen e lidhjes, me mundësi riprovimi. Ky kontroll nuk shfaqet në build-in e prodhimit.
+Konfigurimi fillestar funksionon: React me JSX dhe Tailwind, Laravel 12 me Sanctum, lidhja me bazën e të dhënave dhe proxy i Vite. Faqja e zhvillimit merr `/api/businesses`, shfaq bizneset e faqes së parë dhe totalin, me gjendje ngarkimi, bosh, gabimi dhe riprovimi. Ky kontroll nuk shfaqet në build-in e prodhimit.
 
-Skema e katalogut, marrëdhëniet Eloquent dhe të dhënat demo janë implementuar. API-ja publike, katalogu në frontend, kërkimi dhe administrimi ende nuk janë implementuar. Sanctum është instaluar dhe konfiguruar për sesione; hyrja dhe autorizimi do të zhvillohen me pjesën administrative. Nuk është krijuar llogari administratori.
+Skema e katalogut, marrëdhëniet Eloquent, të dhënat demo dhe API-ja publike janë implementuar. API-ja mbështet profilet, kërkimin, filtrat, renditjen, faqezimin dhe përzgjedhjen e reklamave. Shihni [dokumentimin e API-së](docs/public-api.md) për endpoint-et, parametrat dhe përgjigjet. Ndërfaqja e plotë publike dhe administrimi do të zhvillohen në fazat pasuese. Sanctum është konfiguruar për sesione; nuk është krijuar llogari administratori.
 
 ## Teknologjitë dhe kërkesat
 

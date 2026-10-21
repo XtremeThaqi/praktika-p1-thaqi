@@ -40,3 +40,13 @@ These notes record the initial blocked attempts. Later on 19 October, dependency
 - Frontend production build passed; no frontend source or additional API routes were added. The existing health endpoint tests passed.
 
 All T-01–T-14 remain **Pending**. In particular, the model-level advertisement boundary tests are supporting database evidence, not an end-to-end pass for T-13. Actual MySQL 8 verification, public/admin API validation and UI behavior remain for later stages.
+
+## Public API verification — 21 October 2026
+
+- Read the original 12-page specification from Downloads, the plan and existing database implementation before creating `feat/public-directory-api` from synchronized main after PR #2's merge.
+- MariaDB 10.4.32: `php vendor/bin/phpunit -c phpunit.mysql.xml --no-progress` passed 66 tests with 331 assertions. Includes publication visibility, direct-profile 404s, profile relationships, search trimming/case/literal wildcards, separate and combined filters, website/hours presence, stable sorting, 12-record pages, pagination links/totals, dynamic lookups, ad eligibility/priority/creation ties/time boundaries and invalid query JSON responses.
+- SQLite: `php artisan test` passed 52 tests with 317 assertions; 14 engine-specific database checks were skipped. PHP formatting, Composer validation and `npm run build` passed.
+- In the local Vite browser, the development-only React panel fetched persisted MariaDB records through Laravel and showed 12 of 26 published businesses with demo labels. Loading was observed, stopping Laravel produced the error/retry state, and restarting Laravel plus retry restored the records.
+- Documented the API contract in `public-api.md`. No completed listing/filter UI, profile/map page or admin flow was implemented or claimed as verified. MySQL 8 remains untested.
+
+T-01–T-14 remain **Pending**. API evidence supports their later execution but does not establish the complete browser-level scenarios.
