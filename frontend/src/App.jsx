@@ -30,7 +30,7 @@ export default function App() {
   if (location.pathname === '/') {
     page = <HomePage navigate={navigate} onOpen={setSelectedBusiness} />
   } else if (location.pathname === '/bizneset') {
-    page = <DirectoryPage onOpen={setSelectedBusiness} />
+    page = <DirectoryPage onOpen={setSelectedBusiness} search={location.search} navigate={navigate} />
   } else if (location.pathname === '/kontakt') {
     page = <ContactPage navigate={navigate} />
   } else {
@@ -39,3 +39,4 @@ export default function App() {
 
   return <SiteLayout pathname={location.pathname} navigate={navigate}>{page}{selectedBusiness && <BusinessPreview slug={selectedBusiness} onClose={() => setSelectedBusiness(null)} />}</SiteLayout>
 }
+
