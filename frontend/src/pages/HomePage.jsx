@@ -4,6 +4,7 @@ import SearchForm from '../components/SearchForm'
 import Link from '../components/Link'
 import Icon from '../components/Icon'
 import BusinessCard from '../components/BusinessCard'
+import Advertisement from '../components/Advertisement'
 
 export default function HomePage({ navigate, onOpen }) {
   const [data, setData] = useState(null)
@@ -50,5 +51,6 @@ export default function HomePage({ navigate, onOpen }) {
     <section className="container py-14 sm:py-20"><div className="flex flex-wrap items-end justify-between gap-6"><div><p className="eyebrow">Nga katalogu</p><h2 className="section-title mt-3">Njih bizneset e zonës</h2><p className="mt-3 text-muted">Një përzgjedhje e zakonshme nga bizneset e publikuara, me të dhëna demo.</p></div><Link href="/bizneset" navigate={navigate} className="button-secondary">Të gjitha bizneset <Icon /></Link></div>
       {data && <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">{data.businesses.map(business => <BusinessCard key={business.id} business={business} onOpen={onOpen} />)}</div>}
     </section>
+    <div className="container pb-14"><Advertisement placement="home_banner" onOpen={onOpen} /></div>
   </>
 }

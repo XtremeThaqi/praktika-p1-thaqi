@@ -3,6 +3,7 @@ import { getJson } from '../lib/api'
 import BusinessCard from '../components/BusinessCard'
 import SearchForm from '../components/SearchForm'
 import Link from '../components/Link'
+import Advertisement from '../components/Advertisement'
 
 export default function DirectoryPage({ onOpen, search, navigate }) {
   const params = new URLSearchParams(search)
@@ -49,7 +50,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
     <p className="mt-5 max-w-xl leading-7 text-muted">Eksploro bizneset dhe shërbimet e komunës së Lipjanit. Të dhënat e shënuara “Demo” janë demonstrim.</p>
     <div className="mt-8 max-w-3xl"><SearchForm value={params.get('q') || ''} onSearch={q => changeFilter('q', q)} /></div>
     <div className="mt-10 grid items-start gap-8 lg:grid-cols-[240px_1fr]">
-      <aside className="rounded-2xl border border-line bg-white p-5" aria-label="Filtrat e katalogut">
+      <div className="space-y-6"><aside className="rounded-2xl border border-line bg-white p-5" aria-label="Filtrat e katalogut">
         <h2 className="font-semibold">Filtrat {activeFilters > 0 && <span className="text-muted">({activeFilters})</span>}</h2>
         <button type="button" className="button-secondary mt-4 w-full lg:hidden" aria-expanded={filtersOpen} aria-controls="directory-filters" onClick={() => setFiltersOpen(!filtersOpen)}>{filtersOpen ? 'Mbyll filtrat' : 'Shfaq filtrat'}</button>
         <div id="directory-filters" className={`${filtersOpen ? 'block' : 'hidden'} mt-5 lg:block`}>
@@ -59,7 +60,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
           <div className="mt-6 space-y-3 border-t border-line pt-5">{[['has_website', 'Vetëm me website'], ['has_hours', 'Me orar të publikuar']].map(([name, label]) => <label key={name} className="flex min-h-11 cursor-pointer items-center gap-3 text-sm"><input type="checkbox" checked={params.get(name) === '1'} onChange={event => changeFilter(name, event.target.checked ? '1' : '')} className="size-5 shrink-0 accent-forest" />{label}</label>)}<p className="text-xs leading-5 text-muted">Orari i publikuar nuk tregon nëse biznesi është i hapur tani.</p></div>
           <button type="button" className="button-secondary mt-5 w-full" onClick={clearFilters}>Pastro filtrat</button>
         </div>
-      </aside>
+      </aside><Advertisement placement="results_sidebar" onOpen={onOpen} /></div>
       <div className="min-w-0">
         <div className="mb-6 flex flex-wrap items-center justify-between gap-4"><p role="status" className="text-sm text-muted">{result ? `${result.meta.total} biznese të gjetura` : error ? 'Kërkimi nuk u përfundua' : 'Duke ngarkuar bizneset…'}</p><label className="flex items-center gap-3 text-sm" htmlFor="sort">Renditja<select id="sort" className="field w-auto text-sm" value={params.get('sort') || 'name_asc'} onChange={event => changeFilter('sort', event.target.value)}><option value="name_asc">Emri A–Z</option><option value="name_desc">Emri Z–A</option><option value="newest">Më të rejat</option></select></label></div>
         {!result && !error && <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3" aria-hidden="true">{[1, 2, 3].map(item => <div key={item} className="h-96 rounded-2xl border border-line bg-white"><div className="h-40 rounded-t-2xl bg-[#e7ecdf]" /></div>)}</div>}
