@@ -16,12 +16,13 @@ export default function HomePage({ navigate, onOpen }) {
       getJson('/api/categories', controller.signal),
       getJson('/api/businesses', controller.signal),
     ])
-      .then(([categories, businesses]) =>
-        setData({
-          categories: categories.data,
-          businesses: businesses.data.slice(0, 6),
-        })
-      )
+      .then(([categories, businesses]) => {
+        if (!controller.signal.aborted)
+          setData({
+            categories: categories.data,
+            businesses: businesses.data.slice(0, 6),
+          })
+      })
       .catch((error) => {
         if (!controller.signal.aborted) setError(error.message)
       })

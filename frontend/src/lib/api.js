@@ -22,7 +22,13 @@ export async function getJson(path, signal) {
     error.status = response.status
     throw error
   }
-  return response.json()
+  try {
+    return await response.json()
+  } catch {
+    throw new Error(
+      'Përgjigjja nuk mund të lexohet. Ju lutemi, provoni përsëri.'
+    )
+  }
 }
 
 export function safeWebsite(value) {
