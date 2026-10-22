@@ -25,7 +25,7 @@ Cards include ID, slug, name, description (up to 220 characters plus ellipsis), 
 
 `GET /api/businesses/{slug}` returns `{ "data": { ... } }` for one published business. It includes the full description/address, services, hours and ordered images. Missing optional profile values stay `null`, and missing relationships return empty arrays. Hours contain `day_of_week`, `opens_at`, `closes_at` and `is_closed`; day 0 is Sunday. The profile does not invent coordinates or opening information. Missing, draft and archived profiles return the same JSON 404 response.
 
-Business text is plain text data; clients must render it as text. Image paths are relative to Laravel's public origin, such as `/demo/business-logo.svg`. The development integration currently displays text only. When adding images to React, account for the Laravel origin or a same-origin production routing rule. Demo flags and unverified-location flags are included explicitly.
+Business text is plain text data; clients must render it as text. Image paths are relative to Laravel's public origin, such as `/demo/business-logo.svg`. React displays these images; Vite forwards `/demo` and `/storage` to Laravel. Production must route these paths to Laravel too. Demo flags and unverified-location flags are included explicitly.
 
 ## Filter options
 
@@ -47,6 +47,8 @@ Returned fields are ID, image path, alternative text, destination, placement and
 
 Invalid query values return HTTP 422 with Laravel's `message` and field-keyed `errors`. For example, `?page=0`, `?category=missing`, `?sort=unknown` and `?has_hours[]=1` are rejected. The API returns JSON even without an explicit Accept header. Invalid inputs and public 404s do not expose exception classes or stack traces.
 
-The development-only React connection panel fetches `/api/businesses`, displays its first page and total, and has loading, empty, error and retry states. It is a connection check, not the finished homepage/listing interface. No business data is hardcoded in React.
+The public React homepage `/` uses categories and a regular selection from the business list. `/bizneset` sends the documented search/filter/sort/page parameters directly to the API and restores controls from its URL. It displays the server total and 12-record pages with loading, empty, error and retry states. Business cards open an accessible summary using the profile endpoint; the full profile and map remain for their later stage. `/kontakt` explains that platform contact details are not yet configured. No business or taxonomy records are hardcoded in React. Demo advertisements open their associated business summary; real advertisements use their HTTP(S) destination. Both placements refetch on mount, focus and every 60 seconds, and hide on an empty or failed advertisement response.
 
 Verified on 21 October 2026: the complete MariaDB 10.4.32 suite passed 66 tests/331 assertions; SQLite passed 52/317 with 14 engine-specific tests skipped. The production frontend build, PHP formatting and Composer validation passed. Browser verification covered live records (12 of 26 published demo businesses), loading, backend-unavailable error and retry recovery. MySQL 8 remains untested. T-01–T-14 remain pending until the required complete UI/admin flows are exercised.
+
+Verified on 22 October 2026: public browser search, combined filters, sorting, pagination, URL refresh/back restoration, empty/reset, error/retry and responsive/keyboard behavior. See `acceptance-tests.md` for exact evidence and the remaining pending scenarios. Backend contracts did not change.
