@@ -4,9 +4,11 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 ## Gjendja aktuale
 
-Konfigurimi fillestar funksionon: React me JSX dhe Tailwind, Laravel 12 me Sanctum, lidhja me bazën e të dhënave dhe proxy i Vite. Faqja e zhvillimit merr `/api/businesses`, shfaq bizneset e faqes së parë dhe totalin, me gjendje ngarkimi, bosh, gabimi dhe riprovimi. Ky kontroll nuk shfaqet në build-in e prodhimit.
+Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas dhe të dhënat demo identifikohen qartë.
 
-Skema e katalogut, marrëdhëniet Eloquent, të dhënat demo dhe API-ja publike janë implementuar. API-ja mbështet profilet, kërkimin, filtrat, renditjen, faqezimin dhe përzgjedhjen e reklamave. Shihni [dokumentimin e API-së](docs/public-api.md) për endpoint-et, parametrat dhe përgjigjet. Ndërfaqja e plotë publike dhe administrimi do të zhvillohen në fazat pasuese. Sanctum është konfiguruar për sesione; nuk është krijuar llogari administratori.
+Kartat hapin një përmbledhje të biznesit nga API-ja. Profilet e plota, hartat dhe administrimi mbeten për fazat pasuese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Sanctum është konfiguruar për sesione, por nuk është krijuar llogari administratori. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
+
+![Ballina në desktop](docs/screenshots/home-desktop.png)
 
 ## Teknologjitë dhe kërkesat
 
@@ -74,9 +76,11 @@ npm ci
 npm run dev
 ```
 
-Hapni [frontend-in lokal](http://127.0.0.1:5173). Përdorni vazhdimisht `127.0.0.1` gjatë zhvillimit. Vite mban portën `5173` dhe përcjell `/api` dhe `/sanctum` te Laravel në portën `8000`. Kjo mban kërkesat në të njëjtën origjinë nga këndvështrimi i shfletuesit. Në prodhim këto rrugë duhen përcjellë te Laravel nga web server-i; `vite preview` shërben vetëm skedarët statikë.
+Hapni [frontend-in lokal](http://127.0.0.1:5173). Përdorni vazhdimisht `127.0.0.1` gjatë zhvillimit. Vite mban portën `5173` dhe përcjell `/api`, `/sanctum`, `/demo` dhe `/storage` te Laravel në portën `8000`. Kjo mban kërkesat në të njëjtën origjinë nga këndvështrimi i shfletuesit. Në prodhim këto rrugë duhen përcjellë te Laravel nga web server-i; `vite preview` shërben vetëm skedarët statikë.
 
 ## Kontrollet
+
+Në prodhim, web server-i duhet të shërbejë `frontend/dist/index.html` për rrugët publike `/`, `/bizneset` dhe `/kontakt`, duke ruajtur query parameters. `/api`, `/sanctum`, `/demo` dhe `/storage` duhet të shkojnë te Laravel. Kjo lejon hapjen dhe rifreskimin e URL-ve të ndara; nuk është konfiguruar ose kryer deploy në këtë fazë.
 
 ```powershell
 # Nga backend/
@@ -87,6 +91,7 @@ composer check-platform-reqs
 php artisan migrate:status
 
 # Nga frontend/
+npm test
 npm run build
 ```
 
@@ -108,7 +113,7 @@ Për të provuar lidhjen reale përmes Vite me të dy serverët aktivë:
 Invoke-RestMethod http://127.0.0.1:5173/api/health
 ```
 
-Përgjigjja e pritur është `status: ok`, `database: connected`. Në shfletues, faqja e zhvillimit duhet të tregojë të njëjtin rezultat. Nëse backend-i ndalet, shfaqet gabimi dhe butoni “Provo përsëri”; pas rinisjes, butoni duhet ta rikthejë gjendjen e lidhur.
+Përgjigjja e pritur është `status: ok`, `database: connected`. Në shfletues, ballina dhe katalogu duhet të shfaqin rekordet e publikuara nga baza. Nëse backend-i ndalet, shfaqet gabimi dhe butoni “Provo përsëri”; pas rinisjes, butoni duhet t’i rikthejë rekordet.
 
 Më 19 tetor 2026 kaluan: 3 teste backend me 7 assertions, kontrolli i formatimit, validimi i Composer dhe kërkesave PHP, build-i React dhe migrimet në MariaDB lokale. U verifikuan edhe kërkesa direkte, proxy dhe gjendjet e suksesit/gabimit/riprovimit në shfletues.
 
@@ -124,6 +129,6 @@ Përdoreni vetëm kur serveri nuk është tashmë aktiv. Këto janë vlera për 
 
 ## Plani dhe Git
 
-Shihni [planin](docs/development-plan.md) dhe [skenarët e pranimit](docs/acceptance-tests.md). T-01–T-14 mbeten në pritje deri në implementimin e funksioneve. Screenshots dhe udhëzimet e demonstrimit shtohen me rrjedhat kryesore.
+Shihni [planin](docs/development-plan.md) dhe [skenarët e pranimit](docs/acceptance-tests.md). Më 22 tetor kaluan T-01–T-05 dhe T-07; profilet/hartat, administrimi dhe kufiri i skadimit të reklamave në shfletues mbeten në pritje. Në MariaDB kaluan 66 teste/331 assertions; në SQLite 52/317 dhe 14 kontrolle u anashkaluan. Shtatë teste frontend dhe build-i i prodhimit kaluan. Shihni edhe [pamjen në telefon](docs/screenshots/directory-mobile.png).
 
 Punohet në feature branches me commits që përfaqësojnë ndryshime reale. Bashkimi në `main` bëhet përmes Pull Request pasi të kalojnë kontrollet. Repository në GitHub: [XtremeThaqi/praktika-p1-thaqi](https://github.com/XtremeThaqi/praktika-p1-thaqi). Remote `origin` përdor `https://github.com/XtremeThaqi/praktika-p1-thaqi.git`. `.env`, varësitë dhe build-et përjashtohen nga Git.

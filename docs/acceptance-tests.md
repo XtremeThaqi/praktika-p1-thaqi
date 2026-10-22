@@ -1,16 +1,16 @@
 # Acceptance tests
 
-All scenarios are pending. Source inspection is not a runtime pass. Record the date, environment, exact commands/actions and result when each is exercised with persisted data.
+Statuses below reflect the recorded runtime evidence. Source inspection is not a runtime pass. Record the date, environment, exact commands/actions and result when each is exercised with persisted data.
 
 | ID | Scenario | Required evidence | Status |
 | --- | --- | --- | --- |
-| T-01 | Search business name | API and UI return matching published records; test case and whitespace | Pending |
-| T-02 | Category + settlement | Every match satisfies both, including across pages | Pending |
-| T-03 | Website filter | Excludes missing/empty website values | Pending |
-| T-04 | Next page | Stable sort, retained filters, correct total and no duplicated records | Pending |
-| T-05 | Reload filtered URL | Same selections, count and results with unchanged data | Pending |
+| T-01 | Search business name | API and UI return matching published records; test case and whitespace | Passed, 22 Oct 2026 |
+| T-02 | Category + settlement | Every match satisfies both, including across pages | Passed, 22 Oct 2026 |
+| T-03 | Website filter | Excludes missing/empty website values | Passed, 22 Oct 2026 |
+| T-04 | Next page | Stable sort, retained filters, correct total and no duplicated records | Passed, 22 Oct 2026 |
+| T-05 | Reload filtered URL | Same selections, count and results with unchanged data | Passed, 22 Oct 2026 |
 | T-06 | Open profile | Name/contact/address/pin belong to same record; directions and telephone work | Pending |
-| T-07 | No search matches | Clear explanation and working filter reset | Pending |
+| T-07 | No search matches | Clear explanation and working filter reset | Passed, 22 Oct 2026 |
 | T-08 | Admin creates/publishes | Persisted record appears in list, search and direct profile | Pending |
 | T-09 | Admin changes phone | Updated value appears publicly after reload | Pending |
 | T-10 | Admin creates category | Available in admin form and public filters without code change | Pending |
@@ -50,3 +50,29 @@ All T-01–T-14 remain **Pending**. In particular, the model-level advertisement
 - Documented the API contract in `public-api.md`. No completed listing/filter UI, profile/map page or admin flow was implemented or claimed as verified. MySQL 8 remains untested.
 
 T-01–T-14 remain **Pending**. API evidence supports their later execution but does not establish the complete browser-level scenarios.
+
+## Public interface verification — 22 October 2026
+
+Environment: Windows, PHP 8.2.12, MariaDB 10.4.32, Laravel on port 8000 and Vite on port 5173. Used the existing persisted demo database. PR #3 was confirmed merged before synchronizing main and creating `feat/public-directory-ui`. No backend source or database records were changed today.
+
+Browser actions and results:
+
+- Homepage: six categories loaded from Laravel, six published demo businesses displayed, category link Gastronomi opened `?category=gastronomi` with five matching kitchens. Search submitted with Enter from the homepage trimmed `  Autoservisi  ` and returned four matching records. The directory search button also submitted correctly. Uppercase `DEMO` returned matching records.
+- T-02: category `tregti` gave five records; combining `settlement=janjeve`, `service=dergesa` and `has_hours=1` gave exactly Dyqani 02, 14 and 26. All three matched the selected category and settlement; this combination fits on one page. Refresh retained the selections and records. Independently, Dërgesa returned 10 and Janjevë returned 7.
+- T-03: website-only returned eight records (Autoservisi 03/09/15/21 and Studio 06/12/18/24). The API returned non-empty websites for every match. Combining website-only with the three-shop selection produced no matches, as expected.
+- T-04/T-05: `q=DEMO&has_hours=1&sort=name_desc` returned 18 matches. Page one contained 12 and page two six, with no overlapping names. Page two kept all parameters and displayed 13–18 of 18. Reloading `?q=DEMO&has_hours=1&sort=name_desc&page=2` restored the exact URL, count, names and selected controls. Browser Back restored page one with the same query, hours and sort. Changing sorting reset the page.
+- A–Z began with Autoservisi 03; Z–A began with Teknika 23. Newest began with Autoservisi 15, matching the live API's creation-time order. No sorting or pagination is performed on downloaded full datasets.
+- T-07: an unmatched search showed the Albanian empty message. Its reset action removed the query/filters and restored 26 published businesses. Missing images showed the consistent directory placeholder; available demo illustrations loaded through the Vite proxy.
+- Opening a business card fetched its published profile into a summary dialog. Escape closed it and returned visible keyboard focus to the originating button. This is a summary, not the completed profile/map acceptance scenario.
+- Homepage advertising showed Dyqani 02; the directory sidebar showed Autoservisi 03, separately labelled `Reklamë · Demonstrim`. The demo ad action opened its associated business summary rather than the simulated example.com destination. Real advertisements use their validated HTTP(S) destination. Ads do not affect business totals. Placements refetch on mount, window focus and every 60 seconds; an already-open page may retain an expired placement until its next successful refresh. Exact browser expiry at the boundary is not established.
+- Loading states were observed. Stopped Laravel, submitted a directory search and observed the safe error with retry and usable surrounding navigation. Restarted Laravel and clicked `Provo përsëri`; five matching shops returned. No unexpected console warnings/errors were observed after recovery.
+- At 320, 375, 390, 768, 1024 and 1440 CSS-pixel viewport widths, both homepage and loaded directory had no horizontal overflow. Reviewed desktop and mobile screenshots. Mobile filters expand/collapse; advertisements follow organic results on mobile and sit below filters on desktop. Mobile navigation expands, Escape closes it and restores focus; navigating to Contact closes it. Search Enter, native selects, checkboxes, visible focus and dialog dismissal were exercised with keyboard controls.
+
+Automated checks:
+
+- MariaDB: `php vendor/bin/phpunit -c phpunit.mysql.xml --no-progress` passed **66 tests / 331 assertions** on isolated `lipjan_directory_test`.
+- SQLite: `php artisan test --no-ansi` passed **52 tests / 317 assertions**, with **14 engine-specific checks skipped**.
+- `npm test` passed **7 tests** for request parameters/cancellation, safe validation/server/network/HTML-response errors and allowed external link schemes. These are API-client tests, not a browser automation suite.
+- PHP formatting and strict Composer validation passed. Frontend production build and source formatting passed. Initial concurrent builds failed from host memory exhaustion; stopping the owned Vite server and building with process-local worker/heap limits resolved it, without project configuration changes.
+
+Screenshots: [desktop homepage](screenshots/home-desktop.png), [mobile directory](screenshots/directory-mobile.png). T-01–T-05 and T-07 are now passed at the required public UI level. T-06 and T-08–T-14 remain pending: full profiles/directions/maps, administrative workflows and exact browser advertisement expiry are not completed. Actual MySQL 8 and physical-device testing remain unverified. A real platform contact destination is still required before final delivery.
