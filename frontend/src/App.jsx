@@ -4,6 +4,7 @@ import Link from './components/Link'
 import ContactPage from './pages/ContactPage'
 import DirectoryPage from './pages/DirectoryPage'
 import BusinessPreview from './components/BusinessPreview'
+import HomePage from './pages/HomePage'
 
 function currentLocation() {
   return { pathname: window.location.pathname, search: window.location.search }
@@ -27,7 +28,7 @@ export default function App() {
 
   let page
   if (location.pathname === '/') {
-    page = <section className="container py-20"><p className="eyebrow">Zbulo komunën e Lipjanit</p><h1 className="page-title mt-5">Gjeje pranë.<br />Gjeje në Lipjan.</h1><p className="mt-6 max-w-lg text-lg leading-8 text-muted">Nga nevojat e përditshme te një shërbim i ri. Njih bizneset dhe gjej kontaktin që të duhet.</p><Link href="/bizneset" navigate={navigate} className="button-primary mt-8">Eksploro bizneset</Link></section>
+    page = <HomePage navigate={navigate} onOpen={setSelectedBusiness} />
   } else if (location.pathname === '/bizneset') {
     page = <DirectoryPage onOpen={setSelectedBusiness} />
   } else if (location.pathname === '/kontakt') {
