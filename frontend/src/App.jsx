@@ -3,7 +3,7 @@ import SiteLayout from './components/SiteLayout'
 import Link from './components/Link'
 import ContactPage from './pages/ContactPage'
 import DirectoryPage from './pages/DirectoryPage'
-import BusinessPreview from './components/BusinessPreview'
+import BusinessPage from './pages/BusinessPage'
 import HomePage from './pages/HomePage'
 function currentLocation() {
   return {
@@ -13,14 +13,15 @@ function currentLocation() {
 }
 export default function App() {
   const [location, setLocation] = useState(currentLocation)
-  const [selectedBusiness, setSelectedBusiness] = useState(null)
+  const openBusiness = (slug) =>
+    navigate(`/bizneset/${encodeURIComponent(slug)}`)
   useEffect(() => {
     const titles = {
       '/': 'Ballina',
       '/bizneset': 'Bizneset',
       '/kontakt': 'Kontakt',
     }
-    document.title = `${titles[location.pathname] || 'Faqja nuk u gjet'} · Bizneset e Lipjanit`
+    document.title = `${titles[location.pathname] || (location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
     document.getElementById('main')?.focus({
       preventScroll: true,
     })
@@ -37,12 +38,20 @@ export default function App() {
   }
   let page
   if (location.pathname === '/') {
-    page = <HomePage navigate={navigate} onOpen={setSelectedBusiness} />
+    page = <HomePage navigate={navigate} onOpen={openBusiness} />
   } else if (location.pathname === '/bizneset') {
     page = (
       <DirectoryPage
-        onOpen={setSelectedBusiness}
+        onOpen={openBusiness}
         search={location.search}
+        navigate={navigate}
+      />
+    )
+  } else if (/^\/bizneset\/[^/]+$/.test(location.pathname)) {
+    page = (
+      <BusinessPage
+        key={location.pathname}
+        slug={location.pathname.split('/')[2]}
         navigate={navigate}
       />
     )
@@ -62,12 +71,6 @@ export default function App() {
   return (
     <SiteLayout pathname={location.pathname} navigate={navigate}>
       {page}
-      {selectedBusiness && (
-        <BusinessPreview
-          slug={selectedBusiness}
-          onClose={() => setSelectedBusiness(null)}
-        />
-      )}
     </SiteLayout>
   )
 }

@@ -6,7 +6,7 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas dhe të dhënat demo identifikohen qartë.
 
-Kartat hapin një përmbledhje të biznesit nga API-ja. Profilet e plota, hartat dhe administrimi mbeten për fazat pasuese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Sanctum është konfiguruar për sesione, por nuk është krijuar llogari administratori. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
+Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Administrimi mbetet për fazat pasuese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Sanctum është konfiguruar për sesione, por nuk është krijuar llogari administratori. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
 
 ![Ballina në desktop](docs/screenshots/home-desktop.png)
 
@@ -80,7 +80,7 @@ Hapni [frontend-in lokal](http://127.0.0.1:5173). Përdorni vazhdimisht `127.0.0
 
 ## Kontrollet
 
-Në prodhim, web server-i duhet të shërbejë `frontend/dist/index.html` për rrugët publike `/`, `/bizneset` dhe `/kontakt`, duke ruajtur query parameters. `/api`, `/sanctum`, `/demo` dhe `/storage` duhet të shkojnë te Laravel. Kjo lejon hapjen dhe rifreskimin e URL-ve të ndara; nuk është konfiguruar ose kryer deploy në këtë fazë.
+Në prodhim, web server-i duhet të shërbejë `frontend/dist/index.html` për rrugët publike `/`, `/bizneset`, `/bizneset/{slug}` dhe `/kontakt`, duke ruajtur query parameters. `/api`, `/sanctum`, `/demo` dhe `/storage` duhet të shkojnë te Laravel. Kjo lejon hapjen dhe rifreskimin e URL-ve të ndara; nuk është konfiguruar ose kryer deploy në këtë fazë.
 
 ```powershell
 # Nga backend/
@@ -132,3 +132,11 @@ Përdoreni vetëm kur serveri nuk është tashmë aktiv. Këto janë vlera për 
 Shihni [planin](docs/development-plan.md) dhe [skenarët e pranimit](docs/acceptance-tests.md). Më 22 tetor kaluan T-01–T-05 dhe T-07; profilet/hartat, administrimi dhe kufiri i skadimit të reklamave në shfletues mbeten në pritje. Në MariaDB kaluan 66 teste/331 assertions; në SQLite 52/317 dhe 14 kontrolle u anashkaluan. Shtatë teste frontend dhe build-i i prodhimit kaluan. Shihni edhe [pamjen në telefon](docs/screenshots/directory-mobile.png).
 
 Punohet në feature branches me commits që përfaqësojnë ndryshime reale. Bashkimi në `main` bëhet përmes Pull Request pasi të kalojnë kontrollet. Repository në GitHub: [XtremeThaqi/praktika-p1-thaqi](https://github.com/XtremeThaqi/praktika-p1-thaqi). Remote `origin` përdor `https://github.com/XtremeThaqi/praktika-p1-thaqi.git`. `.env`, varësitë dhe build-et përjashtohen nga Git.
+
+## Profilet dhe hartat — 23 tetor 2026
+
+Leaflet instalohet me `npm ci`; nuk kërkohet çelës API për hartën bazë OpenStreetMap. Atributimi ruhet. Koordinatat demo janë të simuluara dhe etiketohen; pa koordinata të vlefshme nuk vendoset pin. Nëse pllakat e hartës dështojnë, shfaqet mesazh dhe mundësi riprovimi, ndërsa adresa/kontaktet mbeten të përdorshme. Telefoni, email-i dhe linket e jashtme përdorin vetëm vlerat e ruajtura; mungesat nuk plotësohen me shembuj.
+
+Kaluan 12 teste frontend, 66 teste MariaDB/331 assertions dhe 52 teste SQLite/317 assertions (14 kontrolle specifike u anashkaluan). T-14 u verifikua në shfletues; T-06 mbetet në pritje të provës përfundimtare të kontaktit në pajisje të përshtatshme. Nuk u kryen telefonata ose dërgime email-esh gjatë testeve. Shihni [profilin me hartë](docs/screenshots/profile-map-desktop.png) dhe [profilin në telefon](docs/screenshots/profile-mobile.png).
+
+Commit-et e ardhshme përdorin mesazhe të shkurtra e natyrale në anglisht, pa prefikse Conventional Commits. Historia e mëparshme ruhet.

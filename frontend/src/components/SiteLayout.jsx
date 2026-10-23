@@ -24,8 +24,13 @@ export default function SiteLayout({ children, pathname, navigate }) {
         key={item.href}
         href={item.href}
         navigate={navigate}
-        aria-current={pathname === item.href ? 'page' : undefined}
-        className={`nav-link ${pathname === item.href ? 'nav-link-active' : ''}`}
+        aria-current={
+          pathname === item.href ||
+          (item.href === '/bizneset' && pathname.startsWith('/bizneset/'))
+            ? 'page'
+            : undefined
+        }
+        className={`nav-link ${pathname === item.href || (item.href === '/bizneset' && pathname.startsWith('/bizneset/')) ? 'nav-link-active' : ''}`}
       >
         {item.label}
       </Link>
