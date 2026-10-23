@@ -21,7 +21,8 @@ export default function BusinessMap({
     try {
       map = L.map(container.current, { scrollWheelZoom: false })
       const tiles = L.tileLayer(
-        'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+        import.meta.env.VITE_MAP_TILE_URL ||
+          'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
         {
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
