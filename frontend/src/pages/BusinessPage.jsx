@@ -133,7 +133,7 @@ export default function BusinessPage({ slug, navigate }) {
                     >
                       {name}
                     </a>
-                  ),
+                  )
               )}
             </div>
           </header>
@@ -191,7 +191,7 @@ export default function BusinessPage({ slug, navigate }) {
                     {[...business.hours]
                       .sort(
                         (a, b) =>
-                          ((a.day_of_week + 6) % 7) - ((b.day_of_week + 6) % 7),
+                          ((a.day_of_week + 6) % 7) - ((b.day_of_week + 6) % 7)
                       )
                       .map((hour) => (
                         <div

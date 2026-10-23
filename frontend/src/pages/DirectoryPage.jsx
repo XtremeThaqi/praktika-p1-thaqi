@@ -32,8 +32,8 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
     setOptionsError('')
     Promise.all(
       ['categories', 'settlements', 'services'].map((name) =>
-        getJson(`/api/${name}`, controller.signal),
-      ),
+        getJson(`/api/${name}`, controller.signal)
+      )
     )
       .then(([categories, settlements, services]) => {
         if (!controller.signal.aborted)

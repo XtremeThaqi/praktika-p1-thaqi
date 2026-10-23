@@ -5,7 +5,7 @@ import { coordinates, directionsUrl, phoneUrl, emailUrl } from './business.js'
 test('coordinates preserve stored numeric values including zero', () => {
   assert.deepEqual(
     coordinates({ latitude: '42.5012000', longitude: '21.1112000' }),
-    [42.5012, 21.1112],
+    [42.5012, 21.1112]
   )
   assert.deepEqual(coordinates({ latitude: 0, longitude: 0 }), [0, 0])
 })
@@ -28,7 +28,7 @@ test('missing and invalid coordinates never become invented markers', () => {
 test('directions use the selected coordinates or remain unavailable', () => {
   assert.equal(
     directionsUrl({ latitude: 42.5, longitude: 21.1 }),
-    'https://www.google.com/maps/dir/?api=1&destination=42.5,21.1',
+    'https://www.google.com/maps/dir/?api=1&destination=42.5,21.1'
   )
   assert.equal(directionsUrl({ latitude: null, longitude: null }), null)
 })

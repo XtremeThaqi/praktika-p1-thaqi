@@ -21,7 +21,7 @@ export default function App() {
       '/bizneset': 'Bizneset',
       '/kontakt': 'Kontakt',
     }
-    document.title = `${titles[location.pathname] || 'Faqja nuk u gjet'} · Bizneset e Lipjanit`
+    document.title = `${titles[location.pathname] || (location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
     document.getElementById('main')?.focus({
       preventScroll: true,
     })

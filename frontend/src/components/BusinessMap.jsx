@@ -27,7 +27,7 @@ export default function BusinessMap({
           attribution:
             '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
           maxZoom: 19,
-        },
+        }
       )
       tiles.on('tileerror', () => setStatus('error'))
       tiles.on('load', () => {
