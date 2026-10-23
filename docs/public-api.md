@@ -52,3 +52,11 @@ The public React homepage `/` uses categories and a regular selection from the b
 Verified on 21 October 2026: the complete MariaDB 10.4.32 suite passed 66 tests/331 assertions; SQLite passed 52/317 with 14 engine-specific tests skipped. The production frontend build, PHP formatting and Composer validation passed. Browser verification covered live records (12 of 26 published demo businesses), loading, backend-unavailable error and retry recovery. MySQL 8 remains untested. T-01–T-14 remain pending until the required complete UI/admin flows are exercised.
 
 Verified on 22 October 2026: public browser search, combined filters, sorting, pagination, URL refresh/back restoration, empty/reset, error/retry and responsive/keyboard behavior. See `acceptance-tests.md` for exact evidence and the remaining pending scenarios. Backend contracts did not change.
+
+## Profile and map frontend — 23 October 2026
+
+Cards and demo ads now navigate to `/bizneset/{slug}` using the existing browser-history router. Profiles fetch the existing public profile endpoint and support direct loading, refresh and Back/Forward. No backend API contract changed. Full descriptions, images, services, published hours and safe contact actions use stored values. Missing/draft/archived records show the same not-found state.
+
+Both profile and directory use the shared Leaflet map. The directory passes only `result.data`, so markers follow the current filters and page. Invalid/missing coordinates are omitted; map failures preserve the surrounding profile/cards and expose retry. Popup text is created as text nodes, not untrusted HTML. Demo advertisements now open the complete business profile instead of the former dialog.
+
+OpenStreetMap is the default tile source. `VITE_MAP_TILE_URL` may override the URL template for controlled local failure tests; it is public build-time configuration, never a place for secrets. Restore the default before building. Using another provider requires its correct attribution and terms. Reference: https://leafletjs.com/reference.html and https://operations.osmfoundation.org/policies/tiles/.
