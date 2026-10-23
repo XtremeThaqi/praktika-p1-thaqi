@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react'
 import { getJson, safeWebsite } from '../lib/api'
-import { phoneUrl, emailUrl } from '../lib/business'
+import { phoneUrl, emailUrl, directionsUrl } from '../lib/business'
 import Link from '../components/Link'
 import Icon from '../components/Icon'
+import BusinessMap from '../components/BusinessMap'
 
 const days = [
   'E diel',
@@ -212,6 +213,17 @@ export default function BusinessPage({ slug, navigate }) {
               )}
             </section>
           </div>
+          <BusinessMap businesses={[business]} navigate={navigate} />
+          {directionsUrl(business) && (
+            <a
+              className="button-primary mt-5"
+              href={directionsUrl(business)}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Shiko udhëzimet
+            </a>
+          )}
         </>
       )}
     </section>

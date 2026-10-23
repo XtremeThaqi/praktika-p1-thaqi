@@ -93,3 +93,13 @@
     scroll-behavior: auto !important;
   }
 }
+
+.business-marker {
+  background: #173f35;
+  color: #eec461;
+  border: 3px solid white;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  box-shadow: 0 2px 6px #0004;
+}

@@ -4,6 +4,7 @@ import BusinessCard from '../components/BusinessCard'
 import SearchForm from '../components/SearchForm'
 import Link from '../components/Link'
 import Advertisement from '../components/Advertisement'
+import BusinessMap from '../components/BusinessMap'
 export default function DirectoryPage({ onOpen, search, navigate }) {
   const params = new URLSearchParams(search)
   const [result, setResult] = useState(null)
@@ -31,8 +32,8 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
     setOptionsError('')
     Promise.all(
       ['categories', 'settlements', 'services'].map((name) =>
-        getJson(`/api/${name}`, controller.signal)
-      )
+        getJson(`/api/${name}`, controller.signal),
+      ),
     )
       .then(([categories, settlements, services]) => {
         if (!controller.signal.aborted)
@@ -273,6 +274,11 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
                   />
                 ))}
               </div>
+              <BusinessMap
+                businesses={result.data}
+                navigate={navigate}
+                title="Bizneset e kësaj faqeje"
+              />
               <Pagination
                 meta={result.meta}
                 search={search}
