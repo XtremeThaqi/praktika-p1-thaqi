@@ -6,7 +6,7 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas dhe të dhënat demo identifikohen qartë.
 
-Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Administrimi mbetet për fazat pasuese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Sanctum është konfiguruar për sesione, por nuk është krijuar llogari administratori. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
+Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Hyrja e administratorit dhe paneli me statistika reale janë në `/admin/login` dhe `/admin/dashboard`; formularët e menaxhimit vijnë në fazat pasuese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
 
 ![Ballina në desktop](docs/screenshots/home-desktop.png)
 
@@ -140,3 +140,18 @@ Leaflet instalohet me `npm ci`; nuk kërkohet çelës API për hartën bazë Ope
 Kaluan 12 teste frontend, 66 teste MariaDB/331 assertions dhe 52 teste SQLite/317 assertions (14 kontrolle specifike u anashkaluan). T-14 u verifikua në shfletues; T-06 mbetet në pritje të provës përfundimtare të kontaktit në pajisje të përshtatshme. Nuk u kryen telefonata ose dërgime email-esh gjatë testeve. Shihni [profilin me hartë](docs/screenshots/profile-map-desktop.png) dhe [profilin në telefon](docs/screenshots/profile-mobile.png).
 
 Commit-et e ardhshme përdorin mesazhe të shkurtra e natyrale në anglisht, pa prefikse Conventional Commits. Historia e mëparshme ruhet.
+
+## Administrimi — 24 tetor 2026
+
+Pas migrimeve, krijoni administratorin e parë lokalisht nga `backend/`:
+
+```powershell
+php artisan migrate
+php artisan admin:create
+```
+
+Komanda kërkon emrin, emailin dhe një fjalëkalim të paktën 12 karaktere me konfirmim. Fjalëkalimi futet pa u shfaqur në terminal dhe ruhet me hash nga Laravel. Emaili duhet të jetë unik. Komanda nuk ndryshon përdorues ekzistues dhe nuk ka kredenciale të paracaktuara; mos i shkruani kredencialet në Git, URL ose dokumentacion. Përdoruesit e zakonshëm nuk marrin qasje administrative.
+
+Në zhvillim, hapni frontend-in dhe backend-in në të njëjtin host `127.0.0.1` si në komandat e mësipërme. Vite i kalon `/api` dhe `/sanctum` te Laravel. Konfiguroni `SANCTUM_STATEFUL_DOMAINS` për origjinën e frontend-it; sesionet përdorin cookies dhe mbrojtje CSRF. Për vendosje me HTTPS, përdorni `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, një host/origjinë të saktë dhe konfigurimin përkatës të domain-it në `.env`. Mos e çaktivizoni CSRF për ta bërë hyrjen të funksionojë.
+
+`POST /api/admin/login`, `GET /api/admin/me`, `GET /api/admin/dashboard` dhe `POST /api/admin/logout` përshkruhen te [API-ja](docs/public-api.md). Paneli numëron bizneset sipas statusit dhe të gjitha reklamat aktualisht të vlefshme nga databaza. Numri i reklamave mund të ndryshojë me kohën pa ndryshuar kodin. Ende nuk ka veprime për krijim/ndryshim/arkivim në panel.

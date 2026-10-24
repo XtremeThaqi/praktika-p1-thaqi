@@ -1,6 +1,6 @@
 # Public directory API
 
-All endpoints are read-only and available without login. Use `Accept: application/json`. Locally, Laravel runs on `http://127.0.0.1:8000`; Vite forwards the same `/api` paths from port 5173. There are no administrative write endpoints in this stage.
+The public endpoints below are read-only and available without login. Use `Accept: application/json`. Locally, Laravel runs on `http://127.0.0.1:8000`; Vite forwards the same `/api` paths from port 5173. Administrator session endpoints are documented at the end.
 
 ## Businesses
 
@@ -47,7 +47,7 @@ Returned fields are ID, image path, alternative text, destination, placement and
 
 Invalid query values return HTTP 422 with Laravel's `message` and field-keyed `errors`. For example, `?page=0`, `?category=missing`, `?sort=unknown` and `?has_hours[]=1` are rejected. The API returns JSON even without an explicit Accept header. Invalid inputs and public 404s do not expose exception classes or stack traces.
 
-The public React homepage `/` uses categories and a regular selection from the business list. `/bizneset` sends the documented search/filter/sort/page parameters directly to the API and restores controls from its URL. It displays the server total and 12-record pages with loading, empty, error and retry states. Business cards open an accessible summary using the profile endpoint; the full profile and map remain for their later stage. `/kontakt` explains that platform contact details are not yet configured. No business or taxonomy records are hardcoded in React. Demo advertisements open their associated business summary; real advertisements use their HTTP(S) destination. Both placements refetch on mount, focus and every 60 seconds, and hide on an empty or failed advertisement response.
+The public React homepage `/` uses categories and a regular selection from the business list. `/bizneset` sends the documented search/filter/sort/page parameters directly to the API and restores controls from its URL. It displays the server total and 12-record pages with loading, empty, error and retry states. Business cards and demo advertisements open full profiles at `/bizneset/{slug}`. `/kontakt` explains that platform contact details are not yet configured. No business or taxonomy records are hardcoded in React. Real advertisements use their HTTP(S) destination. Both placements refetch on mount, focus and every 60 seconds, and hide on an empty or failed advertisement response.
 
 Verified on 21 October 2026: the complete MariaDB 10.4.32 suite passed 66 tests/331 assertions; SQLite passed 52/317 with 14 engine-specific tests skipped. The production frontend build, PHP formatting and Composer validation passed. Browser verification covered live records (12 of 26 published demo businesses), loading, backend-unavailable error and retry recovery. MySQL 8 remains untested. T-01–T-14 remain pending until the required complete UI/admin flows are exercised.
 
@@ -60,3 +60,20 @@ Cards and demo ads now navigate to `/bizneset/{slug}` using the existing browser
 Both profile and directory use the shared Leaflet map. The directory passes only `result.data`, so markers follow the current filters and page. Invalid/missing coordinates are omitted; map failures preserve the surrounding profile/cards and expose retry. Popup text is created as text nodes, not untrusted HTML. Demo advertisements now open the complete business profile instead of the former dialog.
 
 OpenStreetMap is the default tile source. `VITE_MAP_TILE_URL` may override the URL template for controlled local failure tests; it is public build-time configuration, never a place for secrets. Restore the default before building. Using another provider requires its correct attribution and terms. Reference: https://leafletjs.com/reference.html and https://operations.osmfoundation.org/policies/tiles/.
+
+## Administrator session and dashboard — 24 October 2026
+
+The administrator area uses Sanctum's stateful session authentication. All `/api/admin` routes use Laravel's `web` middleware for session cookies and CSRF verification, then the protected group requires both `auth:sanctum` and the administrator flag. No bearer token is stored in React. There is no public registration or administrator write endpoint yet.
+
+The React client first requests `GET /sanctum/csrf-cookie` with credentials. It sends the decoded `XSRF-TOKEN` cookie as `X-XSRF-TOKEN` on POST requests and includes cookies on every admin request. After login Laravel regenerates the session and cookie; the client reads the current CSRF cookie again for logout.
+
+| Request | Access | Result |
+| --- | --- | --- |
+| `POST /api/admin/login` | Public login endpoint, limited to five attempts per minute | JSON `{ "user": { "name", "email" } }` for valid administrator credentials; no password returned |
+| `GET /api/admin/me` | Administrator | Current name and email |
+| `GET /api/admin/dashboard` | Administrator | `{ "data": { "published_businesses", "draft_businesses", "archived_businesses", "active_advertisements" } }` |
+| `POST /api/admin/logout` | Administrator | Invalidates the session and renews the CSRF token |
+
+The advertisement count uses the same `Advertisement::active()` eligibility rule as the public endpoint: enabled, linked to a published business, started and not expired. It counts every eligible advertisement, even if another ad wins the same public placement. Successful admin responses use `Cache-Control: no-store`.
+
+Missing credentials receive 422 validation errors; incorrect credentials receive a generic 422 message. Unauthenticated requests receive 401, authenticated non-administrators receive 403, missing/invalid CSRF tokens receive 419, and excess login attempts receive 429. Frontend routes are `/admin/login` and `/admin/dashboard`; server authorization is enforced for every protected request.
