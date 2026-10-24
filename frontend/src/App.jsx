@@ -1,10 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import SiteLayout from './components/SiteLayout'
 import Link from './components/Link'
 import ContactPage from './pages/ContactPage'
 import DirectoryPage from './pages/DirectoryPage'
 import BusinessPage from './pages/BusinessPage'
 import HomePage from './pages/HomePage'
+import AdminArea from './pages/AdminArea'
 function currentLocation() {
   return {
     pathname: window.location.pathname,
@@ -20,6 +21,8 @@ export default function App() {
       '/': 'Ballina',
       '/bizneset': 'Bizneset',
       '/kontakt': 'Kontakt',
+      '/admin/login': 'Hyrja në administrim',
+      '/admin/dashboard': 'Paneli administrues',
     }
     document.title = `${titles[location.pathname] || (location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
     document.getElementById('main')?.focus({
@@ -31,10 +34,17 @@ export default function App() {
     window.addEventListener('popstate', restore)
     return () => window.removeEventListener('popstate', restore)
   }, [])
-  function navigate(href) {
+  const navigate = useCallback((href) => {
     window.history.pushState(null, '', href)
     setLocation(currentLocation())
     window.scrollTo(0, 0)
+  }, [])
+
+  if (
+    location.pathname === '/admin/login' ||
+    location.pathname === '/admin/dashboard'
+  ) {
+    return <AdminArea pathname={location.pathname} navigate={navigate} />
   }
   let page
   if (location.pathname === '/') {
