@@ -20,16 +20,18 @@ class CreateAdminTest extends TestCase
 
     public function test_command_creates_an_administrator_with_a_hashed_password(): void
     {
+        $password = bin2hex(random_bytes(12));
+
         $this->artisan('admin:create')
             ->expectsQuestion('Name', 'Local administrator')
             ->expectsQuestion('Email', 'admin@example.test')
-            ->expectsQuestion('Password', 'a-long-private-password')
-            ->expectsQuestion('Confirm password', 'a-long-private-password')
+            ->expectsQuestion('Password', $password)
+            ->expectsQuestion('Confirm password', $password)
             ->assertExitCode(0);
 
         $admin = User::where('email', 'admin@example.test')->firstOrFail();
         $this->assertTrue($admin->is_admin);
-        $this->assertTrue(Hash::check('a-long-private-password', $admin->password));
-        $this->assertNotSame('a-long-private-password', $admin->password);
+        $this->assertTrue(Hash::check($password, $admin->password));
+        $this->assertNotSame($password, $admin->password);
     }
 }

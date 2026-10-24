@@ -1,5 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
+import { randomBytes } from 'node:crypto'
 import { adminRequest, loginAdmin, logoutAdmin } from './admin.js'
 
 test('login initializes CSRF and sends credentials with the session cookie', async (t) => {
@@ -19,7 +20,8 @@ test('login initializes CSRF and sends credentials with the session cookie', asy
       : { ok: true, json: async () => ({ user: { name: 'Admin' } }) }
   }
 
-  const result = await loginAdmin('admin@example.test', 'private-password')
+  const password = randomBytes(18).toString('hex')
+  const result = await loginAdmin('admin@example.test', password)
   assert.equal(result.user.name, 'Admin')
   assert.equal(calls[0].path, '/sanctum/csrf-cookie')
   assert.equal(calls[0].options.credentials, 'include')
@@ -28,7 +30,7 @@ test('login initializes CSRF and sends credentials with the session cookie', asy
   assert.equal(calls[1].options.headers['X-XSRF-TOKEN'], 'encoded=token')
   assert.deepEqual(JSON.parse(calls[1].options.body), {
     email: 'admin@example.test',
-    password: 'private-password',
+    password,
   })
 })
 
@@ -72,7 +74,7 @@ test('logout reads the renewed CSRF cookie after login', async (t) => {
     return { ok: true, json: async () => ({ user: { name: 'Admin' } }) }
   }
 
-  await loginAdmin('admin@example.test', 'private-password')
+  await loginAdmin('admin@example.test', randomBytes(18).toString('hex'))
   await logoutAdmin()
   assert.equal(calls[2].options.headers['X-XSRF-TOKEN'], 'renewed-token')
 })

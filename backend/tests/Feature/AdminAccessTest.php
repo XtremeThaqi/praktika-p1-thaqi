@@ -13,9 +13,12 @@ class AdminAccessTest extends TestCase
 {
     use RefreshDatabase;
 
+    private string $adminPassword;
+
     private function administrator(): User
     {
-        $user = User::factory()->create();
+        $this->adminPassword = bin2hex(random_bytes(12));
+        $user = User::factory()->create(['password' => $this->adminPassword]);
         $user->is_admin = true;
         $user->save();
 
@@ -27,7 +30,7 @@ class AdminAccessTest extends TestCase
         $admin = $this->administrator();
         $oldSession = $this->app['session']->getId();
 
-        $this->postJson('/api/admin/login', ['email' => $admin->email, 'password' => 'password'])
+        $this->postJson('/api/admin/login', ['email' => $admin->email, 'password' => $this->adminPassword])
             ->assertOk()->assertJsonPath('user.email', $admin->email)
             ->assertDontSee('password');
         $this->assertNotSame($oldSession, $this->app['session']->getId());
@@ -51,8 +54,9 @@ class AdminAccessTest extends TestCase
             ->assertJsonPath('message', 'Emaili ose fjalëkalimi nuk është i saktë.');
         $this->assertGuest();
 
-        $normalUser = User::factory()->create();
-        $this->postJson('/api/admin/login', ['email' => $normalUser->email, 'password' => 'password'])
+        $normalPassword = bin2hex(random_bytes(12));
+        $normalUser = User::factory()->create(['password' => $normalPassword]);
+        $this->postJson('/api/admin/login', ['email' => $normalUser->email, 'password' => $normalPassword])
             ->assertUnprocessable()
             ->assertJsonPath('message', 'Emaili ose fjalëkalimi nuk është i saktë.');
         $this->assertGuest();
