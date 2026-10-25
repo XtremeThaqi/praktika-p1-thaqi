@@ -23,8 +23,10 @@ export default function App() {
       '/kontakt': 'Kontakt',
       '/admin/login': 'Hyrja në administrim',
       '/admin/dashboard': 'Paneli administrues',
+      '/admin/businesses': 'Menaxhimi i bizneseve',
+      '/admin/businesses/new': 'Shto biznes',
     }
-    document.title = `${titles[location.pathname] || (location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
+    document.title = `${titles[location.pathname] || (location.pathname.startsWith('/admin/businesses/') ? 'Ndrysho biznesin' : location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
     document.getElementById('main')?.focus({
       preventScroll: true,
     })
@@ -42,9 +44,12 @@ export default function App() {
 
   if (
     location.pathname === '/admin/login' ||
-    location.pathname === '/admin/dashboard'
+    location.pathname === '/admin/dashboard' ||
+    location.pathname === '/admin/businesses' ||
+    location.pathname === '/admin/businesses/new' ||
+    /^\/admin\/businesses\/\d+$/.test(location.pathname)
   ) {
-    return <AdminArea pathname={location.pathname} navigate={navigate} />
+    return <AdminArea pathname={location.pathname} search={location.search} navigate={navigate} />
   }
   let page
   if (location.pathname === '/') {

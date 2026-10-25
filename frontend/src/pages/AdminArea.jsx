@@ -1,9 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
 import AdminDashboardPage from './AdminDashboardPage'
+import AdminBusinessListPage from './AdminBusinessListPage'
+import AdminBusinessFormPage from './AdminBusinessFormPage'
 import AdminLoginPage from './AdminLoginPage'
 import { adminRequest, logoutAdmin } from '../lib/admin'
 
-export default function AdminArea({ pathname, navigate }) {
+export default function AdminArea({ pathname, search, navigate }) {
   const [user, setUser] = useState(undefined)
   const [error, setError] = useState('')
   const [retry, setRetry] = useState(0)
@@ -29,7 +31,7 @@ export default function AdminArea({ pathname, navigate }) {
   useEffect(() => {
     if (error || user === undefined) return
     if (pathname === '/admin/login' && user) navigate('/admin/dashboard')
-    if (pathname === '/admin/dashboard' && !user) navigate('/admin/login')
+    if (pathname !== '/admin/login' && !user) navigate('/admin/login')
   }, [pathname, user, error, navigate])
 
   const sessionExpired = useCallback(() => {
@@ -63,7 +65,7 @@ export default function AdminArea({ pathname, navigate }) {
   if (
     user === undefined ||
     (pathname === '/admin/login' && user) ||
-    (pathname === '/admin/dashboard' && !user)
+    (pathname !== '/admin/login' && !user)
   ) {
     return (
       <main id="main" tabIndex="-1" className="container py-20" role="status">
@@ -72,9 +74,18 @@ export default function AdminArea({ pathname, navigate }) {
     )
   }
 
-  return pathname === '/admin/login' ? (
-    <AdminLoginPage navigate={navigate} onLogin={setUser} />
-  ) : (
+  if (pathname === '/admin/login') {
+    return <AdminLoginPage navigate={navigate} onLogin={setUser} />
+  }
+  if (pathname === '/admin/businesses') {
+    return <AdminBusinessListPage search={search} navigate={navigate}
+      onLogout={signOut} onSessionExpired={sessionExpired} />
+  }
+  if (pathname === '/admin/businesses/new' || /^\/admin\/businesses\/\d+$/.test(pathname)) {
+    return <AdminBusinessFormPage id={pathname === '/admin/businesses/new' ? null : pathname.split('/')[3]}
+      navigate={navigate} onLogout={signOut} onSessionExpired={sessionExpired} />
+  }
+  return (
     <AdminDashboardPage
       user={user}
       navigate={navigate}

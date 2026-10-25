@@ -108,9 +108,13 @@ export default function AdminDashboardPage({
           >
             Përmbledhje
           </Link>
-          <p className="px-4 pt-4 text-xs leading-5 text-muted">
-            Menaxhimi i përmbajtjes do të shtohet në fazat e ardhshme.
-          </p>
+          <Link
+            href="/admin/businesses"
+            navigate={navigate}
+            className="mt-1 block rounded-xl px-4 py-3 text-sm font-semibold text-forest hover:bg-[#eef2e9]"
+          >
+            Bizneset
+          </Link>
         </nav>
 
         <main id="main" tabIndex="-1" className="min-w-0">

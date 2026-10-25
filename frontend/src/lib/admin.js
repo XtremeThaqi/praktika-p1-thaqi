@@ -16,7 +16,9 @@ export async function adminRequest(path, options = {}) {
       cache: 'no-store',
       headers: {
         Accept: 'application/json',
-        ...(options.body ? { 'Content-Type': 'application/json' } : {}),
+        ...(options.body && !(options.body instanceof FormData)
+          ? { 'Content-Type': 'application/json' }
+          : {}),
         ...(options.method && options.method !== 'GET'
           ? { 'X-XSRF-TOKEN': csrfToken() || '' }
           : {}),
@@ -27,6 +29,12 @@ export async function adminRequest(path, options = {}) {
   }
 
   if (!response.ok) {
+    let details = {}
+    try {
+      details = await response.json()
+    } catch {
+      // A server error may not contain JSON.
+    }
     const error = new Error(
       response.status === 401
         ? 'Sesioni ka përfunduar. Hyni përsëri.'
@@ -37,10 +45,11 @@ export async function adminRequest(path, options = {}) {
             : response.status === 429
               ? 'Shumë përpjekje për hyrje. Prisni pak dhe provoni përsëri.'
               : response.status === 422
-                ? 'Emaili ose fjalëkalimi nuk është i saktë.'
+                ? details.message || 'Të dhënat nuk janë të vlefshme.'
                 : 'Kërkesa nuk u realizua. Provoni përsëri.'
     )
     error.status = response.status
+    error.errors = details.errors || {}
     throw error
   }
 
