@@ -63,7 +63,7 @@ OpenStreetMap is the default tile source. `VITE_MAP_TILE_URL` may override the U
 
 ## Administrator session and dashboard — 24 October 2026
 
-The administrator area uses Sanctum's stateful session authentication. All `/api/admin` routes use Laravel's `web` middleware for session cookies and CSRF verification, then the protected group requires both `auth:sanctum` and the administrator flag. No bearer token is stored in React. There is no public registration or administrator write endpoint yet.
+The administrator area uses Sanctum's stateful session authentication. All `/api/admin` routes use Laravel's `web` middleware for session cookies and CSRF verification, then the protected group requires both `auth:sanctum` and the administrator flag. No bearer token is stored in React. There is no public registration; the protected business write endpoints are documented below.
 
 The React client first requests `GET /sanctum/csrf-cookie` with credentials. It sends the decoded `XSRF-TOKEN` cookie as `X-XSRF-TOKEN` on POST requests and includes cookies on every admin request. After login Laravel regenerates the session and cookie; the client reads the current CSRF cookie again for logout.
 
@@ -75,5 +75,24 @@ The React client first requests `GET /sanctum/csrf-cookie` with credentials. It 
 | `POST /api/admin/logout` | Administrator | Invalidates the session and renews the CSRF token |
 
 The advertisement count uses the same `Advertisement::active()` eligibility rule as the public endpoint: enabled, linked to a published business, started and not expired. It counts every eligible advertisement, even if another ad wins the same public placement. Successful admin responses use `Cache-Control: no-store`.
+
+## Administrator business management — 25 October 2026
+
+All routes below are under the existing stateful `web`, `auth:sanctum` and `admin` middleware. Writes require the session CSRF cookie and `X-XSRF-TOKEN` header. Guests receive 401; signed-in non-administrators receive 403.
+
+| Request | Result |
+| --- | --- |
+| `GET /api/admin/businesses?q=&status=&page=` | All statuses, name search, optional `draft`/`published`/`archived` filter, 12 per page |
+| `GET /api/admin/businesses/{id}` | Full stored business with category, settlement, services, hours and images, including drafts/archives |
+| `POST /api/admin/businesses` | Create a draft by default; explicit `status=published` must meet publication rules; returns 201 |
+| `PUT /api/admin/businesses/{id}` | Update fields and supplied relationships; omitted relationships remain unchanged |
+| `PATCH /api/admin/businesses/{id}/publish` | Publish a complete draft |
+| `PATCH /api/admin/businesses/{id}/archive` | Archive a draft or published business without deleting it |
+| `POST /api/admin/businesses/{id}/images` | Upload one JPG, PNG or WebP image, at most 5 MB, with `kind` and `alt_text`; returns 201 |
+| `DELETE /api/admin/businesses/{id}/images/{imageId}` | Remove only an image belonging to that business |
+
+Writes return `{ "data": { ... } }` with the updated business. The list returns Laravel pagination fields (`data`, `total`, `current_page`, `last_page`, etc.). Invalid input returns 422 with field-keyed errors; nonexistent IDs return 404. Drafts may omit publication fields, but the name is needed for the stored record and slug. A published business requires name, description, existing category and settlement, address, phone, and valid latitude/longitude. For a real business the administrator also confirms that the coordinates match the address; demo records retain `is_demo=true` and remain visibly labeled as simulated. Changing a real address or coordinates requires a fresh confirmation. Removing required information from a published record is rejected.
+
+`services` is an array of existing unique service IDs. `hours` is an array of distinct days (0–6), each closed with null times or open with two different `HH:mm` times; closing after midnight is supported. Supplying either array replaces that relationship, and omitting it preserves the existing rows. Images use Laravel's public disk and keep existing images until individually removed. Run `php artisan storage:link` once wherever uploads must be served. The public API continues to use published-only business queries and advertisement eligibility, so archiving hides profiles, listings, map markers and related advertisements without deleting their rows.
 
 Missing credentials receive 422 validation errors; incorrect credentials receive a generic 422 message. Unauthenticated requests receive 401, authenticated non-administrators receive 403, missing/invalid CSRF tokens receive 419, and excess login attempts receive 429. Frontend routes are `/admin/login` and `/admin/dashboard`; server authorization is enforced for every protected request.

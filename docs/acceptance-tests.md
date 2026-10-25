@@ -11,15 +11,24 @@ Statuses below reflect the recorded runtime evidence. Source inspection is not a
 | T-05 | Reload filtered URL | Same selections, count and results with unchanged data | Passed, 22 Oct 2026 |
 | T-06 | Open profile | Name/contact/address/pin belong to same record; directions and telephone work | Pending |
 | T-07 | No search matches | Clear explanation and working filter reset | Passed, 22 Oct 2026 |
-| T-08 | Admin creates/publishes | Persisted record appears in list, search and direct profile | Pending |
-| T-09 | Admin changes phone | Updated value appears publicly after reload | Pending |
+| T-08 | Admin creates/publishes | Persisted record appears in list, search and direct profile | Passed, 25 Oct 2026 |
+| T-09 | Admin changes phone | Updated value appears publicly after reload | Passed, 25 Oct 2026 |
 | T-10 | Admin creates category | Available in admin form and public filters without code change | Pending |
-| T-11 | Admin archives business | Business and ads disappear; direct public URL unavailable; data retained | Pending |
-| T-12 | Visitor attempts admin action | Backend rejects request, database unchanged; repeat after logout | Pending |
+| T-11 | Admin archives business | Business and ads disappear; direct public URL unavailable; data retained | Passed, 25 Oct 2026 |
+| T-12 | Visitor attempts admin action | Backend rejects request, database unchanged; repeat after logout | Passed, 25 Oct 2026 |
 | T-13 | Ad reaches end time | Visible just before end, absent exactly at end and after reload | Pending |
 | T-14 | Map/network failure | Clear fallback/retry; contacts and surrounding content remain usable | Passed, 23 Oct 2026 |
 
-Day 6 authentication does not complete T-12: there is no administrative write operation yet. Keep it pending until an unauthorized write is rejected with the database unchanged, both before login and after logout.
+T-08, T-09 and T-11 combine the persisted Laravel tests with the local browser flow. T-12 includes unauthenticated and non-administrator write rejection, a write rejected after logout, unchanged row counts, and a browser redirect to sign-in.
+
+## Day 7 — 25 October 2026
+
+- On the local MariaDB 10.4.32 test database: 82 tests and 483 assertions passed. SQLite: 82 tests, 469 assertions, with 14 MariaDB-specific checks skipped. The business management tests cover drafts, validation, relationships, hours, images, publication, public search/profile sync, archiving, ads, dashboard counts and denied writes.
+- In the local browser against the development database, a temporary demo business was created as an incomplete draft, its first publication attempt was blocked, its missing details/services/hours were saved, and it was published. Its public profile showed the stored contact, service, hours and map marker. Editing its phone appeared on the public profile after reopening. Archiving removed its direct public profile; the administrator listing kept it visible. The temporary business, its uploaded images and test administrator were removed after verification.
+- Administrator search returned five “Kuzhina” records; the archived filter returned the two seeded records plus the temporary archived fixture; page two showed the next twelve records. Browser Back returned from the public profile to the administrator list, and logout redirected a protected route to sign-in. No browser console errors were recorded during these checks.
+- At 320, 375, 390, 768, 1024 and 1440 pixels, list and edit form controls were present and the document had no horizontal overflow. The table scrolled inside its own container at narrower widths. A visual screenshot of the 320-pixel list and form showed readable fields and navigation. Native confirmation dialogs were exercised at the default viewport; separate dialog screenshots at every width and physical-device testing remain outstanding.
+- On XAMPP, the default PHP upload temporary directory produced a startup notice in multipart responses despite storing the image. Running the PHP development server with a writable workspace `upload_tmp_dir` resolved the response issue. The local public storage link was created for image serving. The production server must configure its upload temporary directory and run `storage:link`.
+- Actual MySQL 8 and physical mobile Safari were not tested. T-06, T-10 and T-13 remain pending for their separate complete scenarios.
 
 Additional checks: missing publication fields; out-of-range/unverified coordinates; invalid image type/size; duplicate taxonomy names; referenced taxonomy deletion; invalid ad intervals; future/inactive ads; priority and creation-order ties; optional hours not labeled “open now”; XSS text; unsafe URL schemes; invalid login; keyboard and three viewport sizes. Check MySQL behavior directly; SQLite-only tests do not establish production collation or foreign-key behavior.
 

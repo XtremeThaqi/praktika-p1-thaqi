@@ -6,7 +6,7 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas dhe të dhënat demo identifikohen qartë.
 
-Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Hyrja e administratorit dhe paneli me statistika reale janë në `/admin/login` dhe `/admin/dashboard`; formularët e menaxhimit vijnë në fazat pasuese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
+Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Hyrja e administratorit dhe paneli me statistika reale janë në `/admin/login` dhe `/admin/dashboard`. Në `/admin/businesses`, administratori mund të kërkojë, filtrojë, shtojë, ndryshojë, publikojë dhe arkivojë biznese. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
 
 ![Ballina në desktop](docs/screenshots/home-desktop.png)
 
@@ -47,6 +47,7 @@ Baza dhe përdoruesi janë krijuar tashmë në këtë kompjuter. `.env` përdor 
 ```powershell
 # Nga backend/
 php artisan migrate
+php artisan storage:link
 php artisan serve --host=127.0.0.1 --port=8000
 ```
 
@@ -64,7 +65,7 @@ Seeders mund të ekzekutohen përsëri pa dyfishuar rekordet ose ndryshuar ID-t�
 
 Bizneset kanë `is_demo=true` dhe emra me shenjën “(Demo)”. Kontaktet, adresat, koordinatat dhe ilustrimet janë të simuluara. `location_verified=false`; asnjë pin nuk paraqitet si i verifikuar. Domenet përdorin `example.com`. Ilustrimet SVG janë krijuar për këtë projekt dhe shënohen “DEMO”; gjenden te `backend/public/demo/`.
 
-Drafteve mund t'u mungojnë të dhëna. Kategoritë dhe vendbanimet nuk fshihen kur përdoren nga biznese; shërbimet duhen shkëputur përpara fshirjes. Fshirja fizike e një biznesi heq lidhjet, oraret, imazhet dhe reklamat e tij. Arkivimi do të përdorë statusin, jo fshirjen fizike. Rrjedha dhe validimi i publikimit do të shtohen me API-në administrative.
+Drafteve mund t'u mungojnë të dhëna. Kategoritë dhe vendbanimet nuk fshihen kur përdoren nga biznese; shërbimet duhen shkëputur përpara fshirjes. Paneli administrues përdor arkivimin, jo fshirjen fizike: rreshti ruhet, por nuk shfaqet publikisht dhe reklamat e lidhura nuk janë më aktive. Për bizneset reale, administratori konfirmon përputhjen e koordinatave me adresën para publikimit. Bizneset demo mbeten të shënuara si të simuluara.
 
 Orari përdor ditët `0` (e diel) deri `6` (e shtunë), me një interval për ditë. Mungesa e rreshtave do të thotë orar i papublikuar. Ditët e mbyllura kanë të dy orët `null`; ora e mbylljes më e vogël se ajo e hapjes nënkupton ditën pasuese. Kufizimet e koordinatave, ditëve/orëve dhe intervalit të reklamës aplikohen në MariaDB/MySQL. SQLite përdoret për kontrolle të shpejta, pa këto CHECK shtesë. Për MySQL kërkohet 8.0.16+ për zbatimin e [CHECK constraints](https://dev.mysql.com/doc/refman/8.0/en/create-table-check-constraints.html); MySQL 8 nuk është testuar ende.
 
@@ -154,4 +155,4 @@ Komanda kërkon emrin, emailin dhe një fjalëkalim të paktën 12 karaktere me 
 
 Në zhvillim, hapni frontend-in dhe backend-in në të njëjtin host `127.0.0.1` si në komandat e mësipërme. Vite i kalon `/api` dhe `/sanctum` te Laravel. Konfiguroni `SANCTUM_STATEFUL_DOMAINS` për origjinën e frontend-it; sesionet përdorin cookies dhe mbrojtje CSRF. Për vendosje me HTTPS, përdorni `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, një host/origjinë të saktë dhe konfigurimin përkatës të domain-it në `.env`. Mos e çaktivizoni CSRF për ta bërë hyrjen të funksionojë.
 
-`POST /api/admin/login`, `GET /api/admin/me`, `GET /api/admin/dashboard` dhe `POST /api/admin/logout` përshkruhen te [API-ja](docs/public-api.md). Paneli numëron bizneset sipas statusit dhe të gjitha reklamat aktualisht të vlefshme nga databaza. Numri i reklamave mund të ndryshojë me kohën pa ndryshuar kodin. Ende nuk ka veprime për krijim/ndryshim/arkivim në panel.
+`POST /api/admin/login`, `GET /api/admin/me`, `GET /api/admin/dashboard`, `POST /api/admin/logout` dhe endpoint-et e menaxhimit të bizneseve përshkruhen te [API-ja](docs/public-api.md). Paneli numëron bizneset sipas statusit dhe të gjitha reklamat aktualisht të vlefshme nga databaza. Numri i reklamave mund të ndryshojë me kohën pa ndryshuar kodin. Lista dhe formulari administrues mbështesin krijimin e drafteve, ndryshimin, publikimin, arkivimin dhe menaxhimin e imazheve.
