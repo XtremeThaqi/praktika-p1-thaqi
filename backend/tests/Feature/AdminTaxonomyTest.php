@@ -52,13 +52,13 @@ class AdminTaxonomyTest extends TestCase
             ->assertJsonValidationErrors('name');
         $this->assertSame($count, Category::count());
 
-        $first = $this->postJson('/api/admin/categories', ['name' => 'Cafe'])->assertCreated();
-        $second = $this->postJson('/api/admin/categories', ['name' => 'Café'])->assertCreated();
-        $this->assertSame('cafe', $first->json('data.slug'));
-        $this->assertSame('cafe-2', $second->json('data.slug'));
+        $first = $this->postJson('/api/admin/categories', ['name' => 'Cafe Bar'])->assertCreated();
+        $second = $this->postJson('/api/admin/categories', ['name' => 'Cafe-Bar'])->assertCreated();
+        $this->assertSame('cafe-bar', $first->json('data.slug'));
+        $this->assertSame('cafe-bar-2', $second->json('data.slug'));
         $this->putJson('/api/admin/categories/'.$second->json('data.id'), ['name' => 'Gastronomi'])
             ->assertUnprocessable()->assertJsonValidationErrors('name');
-        $this->assertDatabaseHas('categories', ['id' => $second->json('data.id'), 'name' => 'Café']);
+        $this->assertDatabaseHas('categories', ['id' => $second->json('data.id'), 'name' => 'Cafe-Bar']);
     }
 
     public function test_referenced_categories_cannot_be_deleted_but_unused_categories_can(): void
