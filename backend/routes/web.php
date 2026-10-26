@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminBusinessController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminTaxonomyController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -24,5 +25,15 @@ Route::prefix('api/admin')->group(function () {
         Route::patch('/businesses/{business}/archive', [AdminBusinessController::class, 'archive']);
         Route::post('/businesses/{business}/images', [AdminBusinessController::class, 'uploadImage']);
         Route::delete('/businesses/{business}/images/{image}', [AdminBusinessController::class, 'deleteImage']);
+
+        Route::get('/categories', [AdminTaxonomyController::class, 'categories']);
+        Route::post('/categories', [AdminTaxonomyController::class, 'storeCategory']);
+        Route::put('/categories/{category}', [AdminTaxonomyController::class, 'updateCategory']);
+        Route::delete('/categories/{category}', [AdminTaxonomyController::class, 'deleteCategory']);
+
+        Route::get('/settlements', [AdminTaxonomyController::class, 'settlements']);
+        Route::post('/settlements', [AdminTaxonomyController::class, 'storeSettlement']);
+        Route::put('/settlements/{settlement}', [AdminTaxonomyController::class, 'updateSettlement']);
+        Route::delete('/settlements/{settlement}', [AdminTaxonomyController::class, 'deleteSettlement']);
     });
 });
