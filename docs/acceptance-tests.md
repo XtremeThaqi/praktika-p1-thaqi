@@ -13,13 +13,21 @@ Statuses below reflect the recorded runtime evidence. Source inspection is not a
 | T-07 | No search matches | Clear explanation and working filter reset | Passed, 22 Oct 2026 |
 | T-08 | Admin creates/publishes | Persisted record appears in list, search and direct profile | Passed, 25 Oct 2026 |
 | T-09 | Admin changes phone | Updated value appears publicly after reload | Passed, 25 Oct 2026 |
-| T-10 | Admin creates category | Available in admin form and public filters without code change | Pending |
+| T-10 | Admin creates category | Available in admin form and public filters without code change | Passed, 26 Oct 2026 |
 | T-11 | Admin archives business | Business and ads disappear; direct public URL unavailable; data retained | Passed, 25 Oct 2026 |
 | T-12 | Visitor attempts admin action | Backend rejects request, database unchanged; repeat after logout | Passed, 25 Oct 2026 |
 | T-13 | Ad reaches end time | Visible just before end, absent exactly at end and after reload | Pending |
 | T-14 | Map/network failure | Clear fallback/retry; contacts and surrounding content remain usable | Passed, 23 Oct 2026 |
 
 T-08, T-09 and T-11 combine the persisted Laravel tests with the local browser flow. T-12 includes unauthenticated and non-administrator write rejection, a write rejected after logout, unchanged row counts, and a browser redirect to sign-in.
+
+## Day 8 — 26 October 2026
+
+- T-10 ran in a local browser using the isolated MariaDB `lipjan_directory_test` database. A temporary administrator signed in and created `Artizanat`. MariaDB stored its name and slug; the admin business form and public directory showed the new option without frontend code changes. Selecting it initially returned zero businesses with the empty state.
+- A published, visibly labeled demo business was created through the admin form in `Artizanat`. The public category filter then returned exactly that business, and its profile showed the same category. Direct profile navigation, refresh, browser Back and Forward worked. A separate request without an authenticated session to create another category returned HTTP 419 (CSRF protection); category count remained seven and the rejected name was absent. Automated tests also verified guest 401 and non-admin 403 responses in the test environment.
+- Category edit retained the original slug. Duplicate-name validation kept the form value, and deleting a referenced category showed the server's restriction message. The service and settlement pages loaded existing records; a new temporary service appeared in the public service filter and a new temporary settlement appeared in the public settlement filter. Service detachment and deletion were verified by MariaDB feature tests; the native service confirmation prompt was not fully exercised in the browser.
+- The complete MariaDB suite passed 90 tests/578 assertions. SQLite passed 90 tests/564 assertions with 14 database-specific skips. Frontend tests passed 16/16, PHP formatting passed, and the Vite production build passed. At 320, 375, 390, 768, 1024 and 1440 CSS pixels the category page had no document-level horizontal overflow; screenshots at 320 and 768 showed readable navigation, forms and records. No browser console errors were recorded. Physical mobile Safari and MySQL 8 were not tested.
+- The acceptance run used only the isolated test database. Its temporary administrator, category, business, service and settlement were removed by reseeding that database; the normal demonstration database was not changed.
 
 ## Day 7 — 25 October 2026
 

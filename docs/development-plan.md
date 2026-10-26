@@ -43,7 +43,7 @@ Persist advertisement timestamps in UTC and edit/display in Europe/Belgrade (Lip
 
 List parameters: `q`, `category`, `settlement`, `service`, `has_website`, `has_hours`, `sort`, `page`. Trim search, use case-insensitive matching on name/description, combine filters with AND, sort before pagination, return 12 records plus total. Validate parameters and use stable ID tie-breaks. URL query parameters are the frontend source of truth; filter changes reset page to 1. Clearing filters restores defaults.
 
-## Remaining working days
+## Delivery timeline
 
 | Date | Deliverable |
 | --- | --- |
@@ -51,14 +51,13 @@ List parameters: `q`, `category`, `settlement`, `service`, `has_website`, `has_h
 | Oct 20 | MySQL migrations, relationships and labeled demo seeders |
 | Oct 21 | Public API and frontend API connection |
 | Oct 22 | Homepage and listing/search/filter/sort/pagination |
-| Oct 23 | URL persistence, profiles and contact actions |
-| Oct 24 | Admin authentication, authorization and dashboard foundation; Leaflet maps were completed on Oct 23 |
-| Oct 26 | Business management foundation |
-| Oct 27 | Business CRUD, publication/archive validation |
-| Oct 28 | Category, settlement and service management |
-| Oct 29 | Advertisement management and scheduling |
-| Oct 30 | Acceptance testing, accessibility, security and README |
-| Oct 31–Nov 1 | Buffer, demo, presentation and final main review |
+| Oct 23 | Profiles, contact actions and Leaflet maps completed |
+| Oct 24 | Admin authentication, authorization and dashboard completed |
+| Oct 25 | Business management, publication and archiving completed |
+| Oct 26 | Category, settlement and service management; T-10 verified |
+| Oct 27 | Advertisement management and scheduling planned |
+| Oct 28–30 | Remaining acceptance checks, accessibility, security and documentation planned |
+| Oct 31–Nov 1 | Buffer, demo, presentation and final main review planned |
 
 Each workday needs genuine completed work and a meaningful commit. This is an aggressive recovery schedule, not a claim that the original four-week plan was followed. Reassess scope daily; optional features stay out. Work remains on branches and enters main through reviewed PRs. The GitHub remote is `XtremeThaqi/praktika-p1-thaqi`; mentor identity has not been supplied.
 
@@ -95,6 +94,8 @@ Day 3 update, 21 October: public business listing/profile, category/settlement/s
 
 Day 6 update, 24 October: Sanctum session login/logout and CSRF, a simple `is_admin` flag, administrator-only middleware, a protected statistics endpoint and React login/dashboard pages are implemented. The initial account is created locally with `php artisan admin:create`, which prompts for a hidden password; no administrator is seeded. Business and advertisement management are still pending. The MariaDB suite and direct HTTP session flow were verified; browser interaction was blocked by the browser tool's URL policy, so responsive and browser acceptance remain unverified. T-12 remains pending until a protected write action exists.
 
-Day 7 update, 25 October: the protected administrator area now lists and searches all business statuses, creates incomplete drafts, edits stored details and relationships, uploads/removes images, publishes only complete records and archives without deletion. Publication requires the documented contact, taxonomy and coordinate fields; real businesses additionally require explicit location confirmation, while demo records remain visibly simulated. Public listing/profile/map queries and advertisement eligibility update from the same persisted record. T-08, T-09, T-11 and T-12 passed through automated and local browser verification; actual MySQL 8 and physical mobile Safari remain unverified. Advertisement management is reserved for Day 8.
+Day 7 update, 25 October: the protected administrator area now lists and searches all business statuses, creates incomplete drafts, edits stored details and relationships, uploads/removes images, publishes only complete records and archives without deletion. Publication requires the documented contact, taxonomy and coordinate fields; real businesses additionally require explicit location confirmation, while demo records remain visibly simulated. Public listing/profile/map queries and advertisement eligibility update from the same persisted record. T-08, T-09, T-11 and T-12 passed through automated and local browser verification; actual MySQL 8 and physical mobile Safari remain unverified.
+
+Day 8 update, 26 October: administrators can list, search, create, rename and delete categories, settlements and services. Names are validated, new slugs remain unique, and renaming keeps existing slugs stable. Referenced categories and settlements cannot be deleted, including when used only by draft or archived businesses. Service deletion requires its exact name and detaches business links in a database transaction. Public and admin business forms continue to read the shared lookup endpoints. T-10 passed in a local browser against the isolated MariaDB test database; temporary records and the test administrator were removed afterward. MariaDB passed 90 tests/578 assertions; SQLite passed 90 tests/564 assertions with 14 engine-specific skips. MySQL 8 and physical Safari remain unverified. Advertisement management is planned for 27 October.
 
 Setup update, 19 October: the existing repository was moved to `C:\Users\ET\Documents\praktika-p1-thaqi`. All nine tracked files matched commit `90fc0c8`; the working tree was clean and `git fsck --full` passed before development resumed. Composer/npm dependencies and lockfiles are now installed. Laravel 12, Sanctum, baseline migrations, the API health endpoint and the development-only React connection check are configured. The installed XAMPP database is MariaDB 10.4.32, tested using Laravel's MySQL driver; verification against actual MySQL 8 remains outstanding. See README for repeatable setup and checks. The next logical stage is the directory schema and labeled demo seeders.

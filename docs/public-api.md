@@ -96,3 +96,28 @@ Writes return `{ "data": { ... } }` with the updated business. The list returns 
 `services` is an array of existing unique service IDs. `hours` is an array of distinct days (0–6), each closed with null times or open with two different `HH:mm` times; closing after midnight is supported. Supplying either array replaces that relationship, and omitting it preserves the existing rows. Images use Laravel's public disk and keep existing images until individually removed. Run `php artisan storage:link` once wherever uploads must be served. The public API continues to use published-only business queries and advertisement eligibility, so archiving hides profiles, listings, map markers and related advertisements without deleting their rows.
 
 Missing credentials receive 422 validation errors; incorrect credentials receive a generic 422 message. Unauthenticated requests receive 401, authenticated non-administrators receive 403, missing/invalid CSRF tokens receive 419, and excess login attempts receive 429. Frontend routes are `/admin/login` and `/admin/dashboard`; server authorization is enforced for every protected request.
+
+## Administrator category, settlement and service management — 26 October 2026
+
+The administrator pages are `/admin/categories`, `/admin/settlements` and `/admin/services`. Each page lists records, supports a name search, shows the number of linked businesses, and provides create, rename and delete actions. All requests below use the same Sanctum session, CSRF protection and administrator middleware as business management.
+
+| Request | Result |
+| --- | --- |
+| `GET /api/admin/categories?q=` | Categories with `id`, `name`, `slug`, `businesses_count` |
+| `POST /api/admin/categories` | Create from `{ "name": "..." }`; returns 201 |
+| `PUT /api/admin/categories/{id}` | Rename from `{ "name": "..." }` |
+| `DELETE /api/admin/categories/{id}` | Delete only when no business uses it; otherwise 409 |
+| `GET /api/admin/settlements?q=` | Settlements and business counts |
+| `POST /api/admin/settlements` | Create from `{ "name": "..." }`; returns 201 |
+| `PUT /api/admin/settlements/{id}` | Rename without changing the slug |
+| `DELETE /api/admin/settlements/{id}` | Delete only when no business uses it; otherwise 409 |
+| `GET /api/admin/services?q=` | Services and business counts |
+| `POST /api/admin/services` | Create from `{ "name": "..." }`; returns 201 |
+| `PUT /api/admin/services/{id}` | Rename without changing the slug |
+| `DELETE /api/admin/services/{id}` | Requires `{ "confirm_name": "exact current name" }`; detaches links and deletes the service |
+
+The optional `q` parameter searches names without case or Albanian accent differences and has a 120-character limit. Names are trimmed, whitespace is normalized, and names must contain 2–120 characters with a usable URL slug. Duplicate names are rejected with a field-specific 422 response. New slugs are generated from the name and receive a numeric suffix if needed; edits preserve the existing slug so public filter URLs remain valid.
+
+Category and settlement deletion checks every related business, regardless of publication status, and the database foreign keys also restrict deletion. Service deletion requires the exact current name because removing it also removes its associations from businesses. Both pivot detachment and deletion run in one transaction; business rows are retained. The public lookup endpoints above immediately reflect changes, so homepage categories, directory filters and administrator business forms use the new values without hardcoded lists. Deleted services disappear from public lookups and profiles.
+
+The complete Day 8 suite passed on MariaDB 10.4.32 (90 tests/578 assertions) and SQLite (90 tests/564 assertions, 14 database-specific skips). T-10 browser evidence and remaining limitations are in `acceptance-tests.md`. Actual MySQL 8 was not tested.
