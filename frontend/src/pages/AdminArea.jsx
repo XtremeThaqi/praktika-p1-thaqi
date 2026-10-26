@@ -3,6 +3,7 @@ import AdminDashboardPage from './AdminDashboardPage'
 import AdminBusinessListPage from './AdminBusinessListPage'
 import AdminBusinessFormPage from './AdminBusinessFormPage'
 import AdminLoginPage from './AdminLoginPage'
+import AdminTaxonomyPage from './AdminTaxonomyPage'
 import { adminRequest, logoutAdmin } from '../lib/admin'
 
 export default function AdminArea({ pathname, search, navigate }) {
@@ -83,6 +84,10 @@ export default function AdminArea({ pathname, search, navigate }) {
   }
   if (pathname === '/admin/businesses/new' || /^\/admin\/businesses\/\d+$/.test(pathname)) {
     return <AdminBusinessFormPage id={pathname === '/admin/businesses/new' ? null : pathname.split('/')[3]}
+      navigate={navigate} onLogout={signOut} onSessionExpired={sessionExpired} />
+  }
+  if (['/admin/categories', '/admin/settlements', '/admin/services'].includes(pathname)) {
+    return <AdminTaxonomyPage key={pathname} kind={pathname.split('/')[2]}
       navigate={navigate} onLogout={signOut} onSessionExpired={sessionExpired} />
   }
   return (
