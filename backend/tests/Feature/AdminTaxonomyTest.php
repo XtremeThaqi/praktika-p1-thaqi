@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use App\Models\Business;
 use App\Models\Category;
+use App\Models\Service;
 use App\Models\Settlement;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -108,6 +109,7 @@ class AdminTaxonomyTest extends TestCase
         $this->actingAs(User::factory()->create());
         $this->postJson('/api/admin/categories', ['name' => 'Nuk lejohet'])->assertForbidden();
         $this->deleteJson('/api/admin/settlements/'.Settlement::firstOrFail()->id)->assertForbidden();
+        $this->postJson('/api/admin/services', ['name' => 'Nuk lejohet'])->assertForbidden();
         $this->assertSame($count, Category::count());
         $this->assertDatabaseMissing('categories', ['name' => 'Nuk lejohet']);
     }
@@ -135,5 +137,47 @@ class AdminTaxonomyTest extends TestCase
         $this->getJson('/api/businesses/'.$business->json('data.slug'))
             ->assertOk()->assertJsonPath('data.category.name', 'Artizanat');
         $this->assertSame($categoryId, Business::findOrFail($id)->category_id);
+    }
+
+    public function test_services_can_be_searched_created_and_renamed(): void
+    {
+        $this->seed();
+        $this->admin();
+
+        $this->getJson('/api/admin/services?q=DERG')->assertOk()->assertJsonCount(1, 'data');
+        $created = $this->postJson('/api/admin/services', ['name' => 'Punime me dorë'])
+            ->assertCreated()->assertJsonPath('data.slug', 'punime-me-dore')
+            ->assertJsonPath('data.businesses_count', 0);
+        $id = $created->json('data.id');
+        $this->getJson('/api/services')->assertJsonFragment(['id' => $id, 'slug' => 'punime-me-dore']);
+        $this->putJson("/api/admin/services/$id", ['name' => 'Punime artizanale'])
+            ->assertOk()->assertJsonPath('data.slug', 'punime-me-dore');
+        $this->postJson('/api/admin/services', ['name' => 'DËRGESA'])
+            ->assertUnprocessable()->assertJsonValidationErrors('name');
+        $this->assertDatabaseHas('services', ['id' => $id, 'name' => 'Punime artizanale']);
+    }
+
+    public function test_deleting_a_service_requires_its_name_and_removes_only_service_links(): void
+    {
+        $this->seed();
+        $this->admin();
+        $service = Service::where('slug', 'dergesa')->firstOrFail();
+        $business = $service->businesses()->where('status', 'published')->firstOrFail();
+        $businessCount = Business::count();
+        $links = $service->businesses()->count();
+        $this->assertGreaterThan(0, $links);
+
+        $this->deleteJson("/api/admin/services/$service->id", ['confirm_name' => 'wrong'])
+            ->assertUnprocessable()->assertJsonValidationErrors('confirm_name');
+        $this->assertDatabaseHas('business_service', ['business_id' => $business->id, 'service_id' => $service->id]);
+
+        $this->deleteJson("/api/admin/services/$service->id", ['confirm_name' => $service->name])->assertOk();
+        $this->assertDatabaseMissing('services', ['id' => $service->id]);
+        $this->assertDatabaseMissing('business_service', ['business_id' => $business->id, 'service_id' => $service->id]);
+        $this->assertSame($businessCount, Business::count());
+        $this->getJson('/api/services')->assertJsonMissing(['slug' => 'dergesa']);
+        $this->getJson('/api/businesses/'.$business->slug)->assertOk()
+            ->assertJsonMissing(['slug' => 'dergesa']);
+        $this->getJson('/api/businesses?service=dergesa')->assertUnprocessable();
     }
 }

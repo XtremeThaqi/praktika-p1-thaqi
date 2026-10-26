@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
+use App\Models\Service;
 use App\Models\Settlement;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\QueryException;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -54,16 +56,46 @@ class AdminTaxonomyController extends Controller
         return $this->deleteUnused($settlement);
     }
 
+    public function services(Request $request): JsonResponse
+    {
+        return $this->listing($request, Service::class);
+    }
+
+    public function storeService(Request $request): JsonResponse
+    {
+        return $this->create($request, Service::class);
+    }
+
+    public function updateService(Request $request, Service $service): JsonResponse
+    {
+        return $this->rename($request, $service);
+    }
+
+    public function deleteService(Request $request, Service $service): JsonResponse
+    {
+        $data = $request->validate(['confirm_name' => ['required', 'string']]);
+        if ($data['confirm_name'] !== $service->name) {
+            throw ValidationException::withMessages(['confirm_name' => 'Shkruani emrin e saktë të shërbimit për ta fshirë.']);
+        }
+
+        DB::transaction(function () use ($service) {
+            $service->businesses()->detach();
+            $service->delete();
+        });
+
+        return response()->json(['message' => 'Shërbimi u fshi.'])->header('Cache-Control', 'no-store');
+    }
+
     private function listing(Request $request, string $model): JsonResponse
     {
         $filters = $request->validate(['q' => ['sometimes', 'string', 'max:120']]);
-        $query = $model::withCount('businesses');
+        $items = $model::withCount('businesses')->orderBy('name')->orderBy('id')->get(['id', 'name', 'slug']);
         if (filled($filters['q'] ?? null)) {
-            $term = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($filters['q']))).'%';
-            $query->whereRaw("LOWER(name) LIKE ? ESCAPE '!'", [$term]);
+            $term = mb_strtolower(Str::ascii(trim($filters['q'])));
+            $items = $items->filter(fn ($item) => str_contains(mb_strtolower(Str::ascii($item->name)), $term))->values();
         }
 
-        return response()->json(['data' => $query->orderBy('name')->orderBy('id')->get(['id', 'name', 'slug'])])
+        return response()->json(['data' => $items])
             ->header('Cache-Control', 'no-store');
     }
 
@@ -124,11 +156,10 @@ class AdminTaxonomyController extends Controller
             throw ValidationException::withMessages(['name' => 'Shkruani një emër të vlefshëm me të paktën dy karaktere.']);
         }
 
-        $duplicate = $model::whereRaw('LOWER(name) = ?', [mb_strtolower($name)]);
-        if ($exceptId) {
-            $duplicate->where('id', '!=', $exceptId);
-        }
-        if ($duplicate->exists()) {
+        $duplicate = $model::query()->get(['id', 'name'])->contains(
+            fn ($item) => $item->id !== $exceptId && mb_strtolower($item->name) === mb_strtolower($name)
+        );
+        if ($duplicate) {
             throw ValidationException::withMessages(['name' => 'Ky emër është tashmë në përdorim.']);
         }
 

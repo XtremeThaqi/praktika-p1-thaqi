@@ -35,5 +35,10 @@ Route::prefix('api/admin')->group(function () {
         Route::post('/settlements', [AdminTaxonomyController::class, 'storeSettlement']);
         Route::put('/settlements/{settlement}', [AdminTaxonomyController::class, 'updateSettlement']);
         Route::delete('/settlements/{settlement}', [AdminTaxonomyController::class, 'deleteSettlement']);
+
+        Route::get('/services', [AdminTaxonomyController::class, 'services']);
+        Route::post('/services', [AdminTaxonomyController::class, 'storeService']);
+        Route::put('/services/{service}', [AdminTaxonomyController::class, 'updateService']);
+        Route::delete('/services/{service}', [AdminTaxonomyController::class, 'deleteService']);
     });
 });
