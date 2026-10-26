@@ -56,7 +56,7 @@ export default function AdminTaxonomyPage({ kind, navigate, onLogout, onSessionE
       return
     }
     setErrors(problem.errors || {})
-    setError(problem.message)
+    setError(Object.keys(problem.errors || {}).length ? '' : problem.message)
   }
 
   async function createItem(event) {
@@ -105,7 +105,7 @@ export default function AdminTaxonomyPage({ kind, navigate, onLogout, onSessionE
     let body
     if (kind === 'services') {
       const answer = window.prompt(
-        `Fshirja e shërbimit “${item.name}” heq lidhjen nga ${item.businesses_count} biznese, pa fshirë bizneset. Shkruani emrin e saktë për ta konfirmuar:`,
+        `Fshirja e shërbimit “${item.name}” heq lidhjen nga ${item.businesses_count} ${item.businesses_count === 1 ? 'biznes' : 'biznese'}, pa fshirë bizneset. Shkruani emrin e saktë për ta konfirmuar:`,
         ''
       )
       if (answer === null) return
@@ -182,7 +182,7 @@ export default function AdminTaxonomyPage({ kind, navigate, onLogout, onSessionE
               <div className="flex flex-wrap items-center justify-between gap-4">
                 <div className="min-w-0">
                   <h2 className="break-words font-display text-lg font-semibold text-forest">{item.name}</h2>
-                  <p className="mt-1 text-sm text-muted">{item.businesses_count} biznese · /{item.slug}</p>
+                  <p className="mt-1 text-sm text-muted">{item.businesses_count} {item.businesses_count === 1 ? 'biznes' : 'biznese'} · /{item.slug}</p>
                 </div>
                 <div className="flex flex-wrap gap-3">
                   <button type="button" className="font-semibold text-forest underline" disabled={busy}

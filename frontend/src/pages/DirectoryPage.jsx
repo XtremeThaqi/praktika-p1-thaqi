@@ -191,7 +191,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
           <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
             <p role="status" className="text-sm text-muted">
               {result
-                ? `${result.meta.total} biznese të gjetura`
+                ? `${result.meta.total} ${result.meta.total === 1 ? 'biznes i gjetur' : 'biznese të gjetura'}`
                 : error
                   ? 'Kërkimi nuk u përfundua'
                   : 'Duke ngarkuar bizneset…'}
@@ -314,7 +314,7 @@ function Pagination({ meta, search, navigate }) {
       className="mt-10 border-t border-line pt-6"
     >
       <p className="mb-4 text-sm text-muted">
-        {meta.from}–{meta.to} nga {meta.total} biznese · Faqja{' '}
+        {meta.from}–{meta.to} nga {meta.total} {meta.total === 1 ? 'biznes' : 'biznese'} · Faqja{' '}
         {meta.current_page} nga {meta.last_page}
       </p>
       <div className="flex flex-wrap items-center gap-2">
