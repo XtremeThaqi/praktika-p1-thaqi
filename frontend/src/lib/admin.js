@@ -46,6 +46,8 @@ export async function adminRequest(path, options = {}) {
               ? 'Shumë përpjekje për hyrje. Prisni pak dhe provoni përsëri.'
               : response.status === 422
                 ? details.message || 'Të dhënat nuk janë të vlefshme.'
+                : response.status === 409
+                  ? details.message || 'Ky zë përdoret nga biznese dhe nuk mund të fshihet.'
                 : 'Kërkesa nuk u realizua. Provoni përsëri.'
     )
     error.status = response.status

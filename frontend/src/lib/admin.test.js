@@ -78,3 +78,24 @@ test('logout reads the renewed CSRF cookie after login', async (t) => {
   await logoutAdmin()
   assert.equal(calls[2].options.headers['X-XSRF-TOKEN'], 'renewed-token')
 })
+
+test('referenced taxonomy deletion shows the server explanation', async (t) => {
+  const originalFetch = globalThis.fetch
+  const originalDocument = globalThis.document
+  t.after(() => {
+    globalThis.fetch = originalFetch
+    globalThis.document = originalDocument
+  })
+
+  globalThis.document = { cookie: 'XSRF-TOKEN=token' }
+  globalThis.fetch = async () => ({
+    ok: false,
+    status: 409,
+    json: async () => ({ message: 'Ky zë nuk mund të fshihet sepse përdoret nga biznese.' }),
+  })
+
+  await assert.rejects(adminRequest('/api/admin/categories/1', { method: 'DELETE' }), {
+    status: 409,
+    message: 'Ky zë nuk mund të fshihet sepse përdoret nga biznese.',
+  })
+})

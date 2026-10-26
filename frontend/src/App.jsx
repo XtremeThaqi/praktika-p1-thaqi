@@ -25,6 +25,9 @@ export default function App() {
       '/admin/dashboard': 'Paneli administrues',
       '/admin/businesses': 'Menaxhimi i bizneseve',
       '/admin/businesses/new': 'Shto biznes',
+      '/admin/categories': 'Menaxhimi i kategorive',
+      '/admin/settlements': 'Menaxhimi i vendbanimeve',
+      '/admin/services': 'Menaxhimi i shërbimeve',
     }
     document.title = `${titles[location.pathname] || (location.pathname.startsWith('/admin/businesses/') ? 'Ndrysho biznesin' : location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
     document.getElementById('main')?.focus({
@@ -47,6 +50,7 @@ export default function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/businesses' ||
     location.pathname === '/admin/businesses/new' ||
+    ['/admin/categories', '/admin/settlements', '/admin/services'].includes(location.pathname) ||
     /^\/admin\/businesses\/\d+$/.test(location.pathname)
   ) {
     return <AdminArea pathname={location.pathname} search={location.search} navigate={navigate} />
