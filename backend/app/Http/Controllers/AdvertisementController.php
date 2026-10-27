@@ -29,9 +29,15 @@ class AdvertisementController extends Controller
                     'alt_text' => $advertisement->alt_text,
                     'destination' => $advertisement->destination,
                     'placement' => $advertisement->placement,
+                    'expires_at' => $advertisement->ends_at->toIso8601String(),
                     'business' => $advertisement->business->only(['id', 'name', 'slug', 'is_demo']),
                 ];
             }
+        }
+
+        $serverTime = now()->toIso8601String();
+        foreach ($advertisements as &$advertisement) {
+            $advertisement['server_time'] = $serverTime;
         }
 
         return response()->json(['data' => $advertisements])->header('Cache-Control', 'no-store');

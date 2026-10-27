@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminBusinessController;
 use App\Http\Controllers\AdminDashboardController;
+use App\Http\Controllers\AdminAdvertisementController;
 use App\Http\Controllers\AdminTaxonomyController;
 use Illuminate\Support\Facades\Route;
 
@@ -40,5 +41,13 @@ Route::prefix('api/admin')->group(function () {
         Route::post('/services', [AdminTaxonomyController::class, 'storeService']);
         Route::put('/services/{service}', [AdminTaxonomyController::class, 'updateService']);
         Route::delete('/services/{service}', [AdminTaxonomyController::class, 'deleteService']);
+
+        Route::get('/advertisements', [AdminAdvertisementController::class, 'index']);
+        Route::get('/advertisements/{advertisement}', [AdminAdvertisementController::class, 'show']);
+        Route::post('/advertisements', [AdminAdvertisementController::class, 'store']);
+        Route::put('/advertisements/{advertisement}', [AdminAdvertisementController::class, 'update']);
+        Route::post('/advertisements/{advertisement}/image', [AdminAdvertisementController::class, 'replaceImage']);
+        Route::patch('/advertisements/{advertisement}/toggle', [AdminAdvertisementController::class, 'toggle']);
+        Route::delete('/advertisements/{advertisement}', [AdminAdvertisementController::class, 'destroy']);
     });
 });
