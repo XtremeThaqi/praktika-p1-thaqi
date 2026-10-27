@@ -4,6 +4,7 @@ import Icon from '../components/Icon'
 import { adminRequest } from '../lib/admin'
 import AdminLayout from './AdminLayout'
 import { placementLabels, statusLabels } from './AdminAdvertisementListPage'
+import { previewAdvertisementDestination } from '../lib/advertisementDestination'
 
 const emptyForm = {
   business_id: '', placement: 'home_banner', alt_text: '', destination: '',
@@ -159,8 +160,9 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
   const statusText = status ? statusLabels[status] || 'Në pritje të publikimit' : 'Draft i ri'
   const placementText = placementLabels[form.placement]
   const selectedName = selected?.name || 'Emri i biznesit'
-  const internalDestination = form.destination?.startsWith('/bizneset/')
-  const externalDestination = /^https?:\/\//i.test(form.destination || '')
+  const effectiveDestination = previewAdvertisementDestination(form.destination, selected)
+  const internalDestination = effectiveDestination.startsWith('/bizneset/')
+  const externalDestination = /^https?:\/\//i.test(effectiveDestination)
 
   return <AdminLayout title={id ? 'Ndrysho reklamën' : 'Shto reklamë'} current="advertisements" navigate={navigate} onLogout={onLogout}>
     <Link href="/admin/advertisements" navigate={navigate} className="mt-5 inline-block font-semibold text-forest underline">← Kthehu te reklamat</Link>
