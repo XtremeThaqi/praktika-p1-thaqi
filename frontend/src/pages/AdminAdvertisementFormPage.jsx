@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Link from '../components/Link'
+import Icon from '../components/Icon'
 import { adminRequest } from '../lib/admin'
 import AdminLayout from './AdminLayout'
 import { placementLabels, statusLabels } from './AdminAdvertisementListPage'
@@ -158,6 +159,8 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
   const statusText = status ? statusLabels[status] || 'Në pritje të publikimit' : 'Draft i ri'
   const placementText = placementLabels[form.placement]
   const selectedName = selected?.name || 'Emri i biznesit'
+  const internalDestination = form.destination?.startsWith('/bizneset/')
+  const externalDestination = /^https?:\/\//i.test(form.destination || '')
 
   return <AdminLayout title={id ? 'Ndrysho reklamën' : 'Shto reklamë'} current="advertisements" navigate={navigate} onLogout={onLogout}>
     <Link href="/admin/advertisements" navigate={navigate} className="mt-5 inline-block font-semibold text-forest underline">← Kthehu te reklamat</Link>
@@ -244,11 +247,10 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
         <aside aria-label="Pamja paraprake" className="lg:sticky lg:top-6">
           <div className="overflow-hidden rounded-3xl border border-[#d9c9a9] bg-[#f2ead9] shadow-[0_18px_45px_rgba(23,63,53,0.12)]">
             <div className="flex items-center justify-between border-b border-[#dfd1b7] px-5 py-4"><p className="eyebrow text-[#765016]">Pamje paraprake</p><span className="rounded-full bg-white/70 px-3 py-1 text-xs font-semibold text-[#765016]">{statusText}</span></div>
-            <div className="relative aspect-[4/3] overflow-hidden bg-forest">
-              {visibleImage && !imageFailed ? <img className="size-full object-cover" src={visibleImage} alt={form.alt_text || `Pamje e reklamës për ${selectedName}`} onError={() => setImageFailed(true)} /> : <div className="flex size-full flex-col justify-end bg-[radial-gradient(circle_at_22%_22%,#557c63_0,#173f35_48%,#102f29_100%)] p-6 text-white"><span className="mb-auto inline-flex w-fit rounded-full bg-[#eec461] px-3 py-1 text-xs font-bold uppercase tracking-wider text-forest">{placementText}</span><p className="max-w-[14rem] font-display text-3xl leading-tight">Bëjeni biznesin tuaj të duket.</p><p className="mt-2 text-sm text-white/75">Ngarkoni imazhin për ta parë këtu.</p></div>}
-              <div className="absolute inset-x-0 bottom-0 flex items-center justify-between bg-gradient-to-t from-black/60 to-transparent px-5 pb-4 pt-10 text-white"><span className="text-xs font-semibold uppercase tracking-[0.16em]">Reklamë · {placementText}</span><span className="rounded-full bg-white px-3 py-1 text-xs font-bold text-forest">Shiko më shumë</span></div>
+            <div className="flex min-h-52 items-center justify-center bg-white/35 p-5">
+              {visibleImage && !imageFailed ? <img className="mt-0 max-h-44 w-full rounded-lg object-contain" src={visibleImage} alt={form.alt_text || `Reklamë e ${selectedName}`} onError={() => setImageFailed(true)} /> : <div className="flex min-h-44 w-full items-center justify-center rounded-lg bg-[radial-gradient(circle_at_22%_22%,#557c63_0,#173f35_48%,#102f29_100%)] p-6 text-center text-white"><div><span className="inline-flex rounded-full bg-[#eec461] px-3 py-1 text-xs font-bold uppercase tracking-wider text-forest">{placementText}</span><p className="mt-4 font-display text-2xl leading-tight">Imazhi i reklamës</p><p className="mt-2 text-sm text-white/75">Zgjidhni një imazh për ta parë këtu.</p></div></div>}
             </div>
-            <div className="p-5"><div className="flex items-start justify-between gap-4"><div><p className="text-xs font-semibold uppercase tracking-[0.16em] text-[#765016]">E sponsorizuar</p><p className="mt-2 text-xl font-semibold text-forest">{selectedName}</p><p className="mt-2 text-sm text-[#5e6c63]">Kjo është vetëm pamje paraprake. Reklama publikohet pasi të ruhet.</p></div><span className="mt-1 flex size-10 shrink-0 items-center justify-center rounded-full bg-forest text-[#eec461]" aria-hidden="true">↗</span></div></div>
+            <div className="p-5"><p className="eyebrow text-[#765016]">Reklamë {selected?.is_demo && '· Demonstrim'}</p><p className="mt-4 font-semibold">{selectedName}</p>{selected?.is_demo && <p className="mt-2 text-sm leading-6 text-muted">Hapësirë reklamuese me të dhëna të simuluara. Nuk është rekomandim i platformës.</p>}<div className="mt-4">{internalDestination ? <span className="button-secondary pointer-events-none">Shiko profilin e biznesit <Icon /></span> : selected?.is_demo ? <span className="button-secondary pointer-events-none">Shiko biznesin demo <Icon /></span> : externalDestination ? <span className="button-secondary pointer-events-none">Hap reklamën <Icon /></span> : <span className="text-sm text-muted">CTA do të shfaqet pas zgjedhjes së destinacionit.</span>}</div><p className="mt-4 text-xs text-muted">Pamje paraprake — nuk publikohet pa ruajtur formularin.</p></div>
           </div>
         </aside>
       </form>
