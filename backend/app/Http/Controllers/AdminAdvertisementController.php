@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Advertisement;
+use App\Rules\SafeImage;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -23,7 +24,7 @@ class AdminAdvertisementController extends Controller
             'status' => ['sometimes', Rule::in(['active_now', 'scheduled', 'expired', 'disabled', 'unpublished_business'])],
             'page' => ['sometimes', 'integer', 'min:1', 'max:100000'],
         ]);
-        $query = Advertisement::with('business:id,name,status,is_demo');
+        $query = Advertisement::with('business:id,name,slug,status,is_demo');
         if (filled($filters['q'] ?? null)) {
             $term = '%'.str_replace(['!', '%', '_'], ['!!', '!%', '!_'], mb_strtolower(trim($filters['q']))).'%';
             $query->whereHas('business', fn ($businesses) => $businesses->whereRaw("LOWER(name) LIKE ? ESCAPE '!'", [$term]));
@@ -66,7 +67,7 @@ class AdminAdvertisementController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $this->validatedFields($request);
-        $image = $request->validate(['image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']])['image'];
+        $image = $request->validate(['image' => ['required', new SafeImage]])['image'];
         $storedPath = null;
         try {
             $advertisement = DB::transaction(function () use ($data, $image, &$storedPath) {
@@ -98,7 +99,7 @@ class AdminAdvertisementController extends Controller
 
     public function replaceImage(Request $request, Advertisement $advertisement): JsonResponse
     {
-        $image = $request->validate(['image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120']])['image'];
+        $image = $request->validate(['image' => ['required', new SafeImage]])['image'];
         $newPath = $image->store('advertisements/'.$advertisement->id, 'public');
         if (! $newPath) {
             throw ValidationException::withMessages(['image' => 'Imazhi nuk mund të ruhej. Provoni përsëri.']);
@@ -142,7 +143,7 @@ class AdminAdvertisementController extends Controller
             'business_id' => ['required', 'integer', 'exists:businesses,id'],
             'placement' => ['required', Rule::in(['home_banner', 'results_sidebar'])],
             'alt_text' => ['required', 'string', 'min:3', 'max:255'],
-            'destination' => ['required', 'url:http,https', 'max:2048'],
+            'destination' => ['sometimes', 'nullable', 'url:http,https', 'max:2048'],
             'starts_at_local' => ['required', 'date_format:Y-m-d\TH:i'],
             'ends_at_local' => ['required', 'date_format:Y-m-d\TH:i'],
             'priority' => ['required', 'integer', 'between:0,65535'],
@@ -197,7 +198,7 @@ class AdminAdvertisementController extends Controller
 
     private function detail(Advertisement $advertisement, int $status = 200): JsonResponse
     {
-        $advertisement->refresh()->load('business:id,name,status,is_demo');
+        $advertisement->refresh()->load('business:id,name,slug,status,is_demo');
 
         return response()->json(['data' => $this->data($advertisement, now())], $status)
             ->header('Cache-Control', 'no-store');
@@ -219,7 +220,7 @@ class AdminAdvertisementController extends Controller
 
         return [
             'id' => $advertisement->id,
-            'business' => $advertisement->business->only(['id', 'name', 'status', 'is_demo']),
+            'business' => $advertisement->business->only(['id', 'name', 'slug', 'status', 'is_demo']),
             'image_path' => $advertisement->image_path,
             'alt_text' => $advertisement->alt_text,
             'destination' => $advertisement->destination,

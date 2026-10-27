@@ -208,4 +208,39 @@ class AdminBusinessManagementTest extends TestCase
         $this->deleteJson("/api/admin/businesses/$business->id/images/$newImage->id")->assertOk();
         $this->assertSame($oldImages, $business->images()->count());
     }
+
+    public function test_business_image_upload_rejects_malformed_and_disguised_files(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::firstOrFail();
+        foreach ([
+            UploadedFile::fake()->createWithContent('script.php', '<?php echo "no";'),
+            UploadedFile::fake()->createWithContent('script.jpg', '<?php echo "no";'),
+            UploadedFile::fake()->createWithContent('image.svg', '<svg></svg>'),
+            UploadedFile::fake()->createWithContent('broken.webp', 'not an image'),
+        ] as $upload) {
+            $this->postJson("/api/admin/businesses/$business->id/images", [
+                'image' => $upload, 'kind' => 'gallery', 'alt_text' => 'Test image',
+            ])->assertUnprocessable()->assertJsonValidationErrors('image');
+        }
+        $this->assertSame(0, $business->images()->where('path', 'like', '%businesses/'.$business->id.'/%')->count());
+    }
+
+    public function test_valid_png_content_with_a_different_allowed_extension_is_rejected(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::firstOrFail();
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=');
+
+        foreach (['logo.jpg', 'logo.webp'] as $name) {
+            $this->postJson("/api/admin/businesses/$business->id/images", [
+                'image' => UploadedFile::fake()->createWithContent($name, $png),
+                'kind' => 'gallery', 'alt_text' => 'Test image',
+            ])->assertUnprocessable()->assertJsonValidationErrors('image');
+        }
+    }
 }

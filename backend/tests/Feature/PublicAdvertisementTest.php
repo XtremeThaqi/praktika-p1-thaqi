@@ -69,4 +69,14 @@ class PublicAdvertisementTest extends TestCase
             $this->get('/api/advertisements?'.$query)->assertUnprocessable()->assertJsonValidationErrors('placement');
         }
     }
+
+    public function test_empty_destination_uses_the_business_profile_link(): void
+    {
+        $this->seed();
+        $ad = Advertisement::active()->where('placement', 'home_banner')->orderByDesc('priority')->firstOrFail();
+        $ad->update(['destination' => null]);
+
+        $this->getJson('/api/advertisements?placement=home_banner')
+            ->assertOk()->assertJsonPath('data.0.destination', '/bizneset/'.$ad->business->slug);
+    }
 }

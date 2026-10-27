@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Business;
 use App\Models\BusinessImage;
+use App\Rules\SafeImage;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -120,7 +121,7 @@ class AdminBusinessController extends Controller
     public function uploadImage(Request $request, Business $business): JsonResponse
     {
         $data = $request->validate([
-            'image' => ['required', 'image', 'mimes:jpg,jpeg,png,webp', 'max:5120'],
+            'image' => ['required', new SafeImage],
             'kind' => ['required', Rule::in(['logo', 'gallery'])],
             'alt_text' => ['required', 'string', 'max:255'],
         ]);
