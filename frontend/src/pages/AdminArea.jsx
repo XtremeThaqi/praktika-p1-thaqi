@@ -4,6 +4,8 @@ import AdminBusinessListPage from './AdminBusinessListPage'
 import AdminBusinessFormPage from './AdminBusinessFormPage'
 import AdminLoginPage from './AdminLoginPage'
 import AdminTaxonomyPage from './AdminTaxonomyPage'
+import AdminAdvertisementListPage from './AdminAdvertisementListPage'
+import AdminAdvertisementFormPage from './AdminAdvertisementFormPage'
 import { adminRequest, logoutAdmin } from '../lib/admin'
 
 export default function AdminArea({ pathname, search, navigate }) {
@@ -88,6 +90,15 @@ export default function AdminArea({ pathname, search, navigate }) {
   }
   if (['/admin/categories', '/admin/settlements', '/admin/services'].includes(pathname)) {
     return <AdminTaxonomyPage key={pathname} kind={pathname.split('/')[2]}
+      navigate={navigate} onLogout={signOut} onSessionExpired={sessionExpired} />
+  }
+  if (pathname === '/admin/advertisements') {
+    return <AdminAdvertisementListPage search={search} navigate={navigate}
+      onLogout={signOut} onSessionExpired={sessionExpired} />
+  }
+  if (pathname === '/admin/advertisements/new' || /^\/admin\/advertisements\/\d+$/.test(pathname)) {
+    return <AdminAdvertisementFormPage key={pathname}
+      id={pathname === '/admin/advertisements/new' ? null : pathname.split('/')[3]}
       navigate={navigate} onLogout={signOut} onSessionExpired={sessionExpired} />
   }
   return (

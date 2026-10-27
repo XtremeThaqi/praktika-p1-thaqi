@@ -7,6 +7,7 @@ const sections = [
   ['categories', 'Kategoritë'],
   ['settlements', 'Vendbanimet'],
   ['services', 'Shërbimet'],
+  ['advertisements', 'Reklamat'],
 ]
 
 export default function AdminLayout({ title, current, navigate, onLogout, children }) {
