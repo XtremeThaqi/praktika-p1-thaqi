@@ -157,6 +157,9 @@ export default function AdminTaxonomyPage({ kind, navigate, onLogout, onSessionE
       </form>
 
       {feedback && <p role="status" className="mt-5 rounded-xl bg-emerald-50 p-4 text-emerald-900">{feedback}</p>}
+      {errors.confirm_name && <p role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-900">
+        {errors.confirm_name[0]}
+      </p>}
       {error && <div role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-red-900">
         <p>{error}</p>
         {items === null && <button type="button" className="mt-2 underline" onClick={() => setRetry((count) => count + 1)}>Provo përsëri</button>}

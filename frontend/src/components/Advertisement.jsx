@@ -1,31 +1,54 @@
 import { useEffect, useState } from 'react'
 import { getJson, safeWebsite } from '../lib/api'
+import { remainingAdvertisementTime } from '../lib/adExpiry'
 import Icon from './Icon'
 export default function Advertisement({ placement, onOpen }) {
   const [advertisement, setAdvertisement] = useState(null)
   const [imageFailed, setImageFailed] = useState(false)
   useEffect(() => {
     let controller
+    let expiryTimer
+    let expiresAt = 0
     function load() {
+      if (expiresAt && performance.now() >= expiresAt) {
+        window.clearTimeout(expiryTimer)
+        expiresAt = 0
+        setAdvertisement(null)
+      }
       controller?.abort()
       controller = new AbortController()
       const signal = controller.signal
+      const requestStarted = performance.now()
       getJson(`/api/advertisements?placement=${placement}`, signal)
         .then((result) => {
           if (!signal.aborted) {
-            setAdvertisement(result.data[0] || null)
+            window.clearTimeout(expiryTimer)
+            const next = result.data[0] || null
+            const remaining = next ? remainingAdvertisementTime(next, performance.now() - requestStarted) : 0
+            expiresAt = next && remaining > 0 ? performance.now() + remaining : 0
+            setAdvertisement(expiresAt ? next : null)
             setImageFailed(false)
+            if (expiresAt) {
+              expiryTimer = window.setTimeout(() => {
+                setAdvertisement(null)
+                expiresAt = 0
+                load()
+              }, Math.floor(remaining))
+            } else if (next) {
+              expiryTimer = window.setTimeout(load, 250)
+            }
           }
         })
         .catch(() => {
-          if (!signal.aborted) setAdvertisement(null)
+          if (!signal.aborted) { window.clearTimeout(expiryTimer); expiresAt = 0; setAdvertisement(null) }
         })
     }
     load()
     const timer = window.setInterval(load, 60000)
     window.addEventListener('focus', load)
     return () => {
-      controller.abort()
+      controller?.abort()
+      window.clearTimeout(expiryTimer)
       window.clearInterval(timer)
       window.removeEventListener('focus', load)
     }

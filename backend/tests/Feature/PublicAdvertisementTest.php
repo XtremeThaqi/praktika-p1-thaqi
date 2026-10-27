@@ -18,6 +18,9 @@ class PublicAdvertisementTest extends TestCase
             ->assertJsonPath('data.1.business.slug', 'demo-biznes-03');
         $this->getJson('/api/advertisements?placement=home_banner')->assertOk()->assertJsonCount(1, 'data')
             ->assertJsonPath('data.0.business.slug', 'demo-biznes-02')->assertHeader('Cache-Control', 'no-store, private');
+        $winner = $this->getJson('/api/advertisements?placement=home_banner')->json('data.0');
+        $this->assertSame(Advertisement::findOrFail($winner['id'])->ends_at->toIso8601String(), $winner['expires_at']);
+        $this->assertNotEmpty($winner['server_time']);
         $this->getJson('/api/businesses')->assertOk()->assertJsonPath('meta.total', 26);
     }
 

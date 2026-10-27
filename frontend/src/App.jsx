@@ -28,8 +28,10 @@ export default function App() {
       '/admin/categories': 'Menaxhimi i kategorive',
       '/admin/settlements': 'Menaxhimi i vendbanimeve',
       '/admin/services': 'Menaxhimi i shërbimeve',
+      '/admin/advertisements': 'Menaxhimi i reklamave',
+      '/admin/advertisements/new': 'Shto reklamë',
     }
-    document.title = `${titles[location.pathname] || (location.pathname.startsWith('/admin/businesses/') ? 'Ndrysho biznesin' : location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
+    document.title = `${titles[location.pathname] || (location.pathname.startsWith('/admin/businesses/') ? 'Ndrysho biznesin' : location.pathname.startsWith('/admin/advertisements/') ? 'Ndrysho reklamën' : location.pathname.startsWith('/bizneset/') ? 'Profili i biznesit' : 'Faqja nuk u gjet')} · Bizneset e Lipjanit`
     document.getElementById('main')?.focus({
       preventScroll: true,
     })
@@ -50,8 +52,11 @@ export default function App() {
     location.pathname === '/admin/dashboard' ||
     location.pathname === '/admin/businesses' ||
     location.pathname === '/admin/businesses/new' ||
+    location.pathname === '/admin/advertisements' ||
+    location.pathname === '/admin/advertisements/new' ||
     ['/admin/categories', '/admin/settlements', '/admin/services'].includes(location.pathname) ||
-    /^\/admin\/businesses\/\d+$/.test(location.pathname)
+    /^\/admin\/businesses\/\d+$/.test(location.pathname) ||
+    /^\/admin\/advertisements\/\d+$/.test(location.pathname)
   ) {
     return <AdminArea pathname={location.pathname} search={location.search} navigate={navigate} />
   }
