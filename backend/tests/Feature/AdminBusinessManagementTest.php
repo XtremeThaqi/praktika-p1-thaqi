@@ -227,4 +227,20 @@ class AdminBusinessManagementTest extends TestCase
         }
         $this->assertSame(0, $business->images()->where('path', 'like', '%businesses/'.$business->id.'/%')->count());
     }
+
+    public function test_valid_png_content_with_a_different_allowed_extension_is_rejected(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::firstOrFail();
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=');
+
+        foreach (['logo.jpg', 'logo.webp'] as $name) {
+            $this->postJson("/api/admin/businesses/$business->id/images", [
+                'image' => UploadedFile::fake()->createWithContent($name, $png),
+                'kind' => 'gallery', 'alt_text' => 'Test image',
+            ])->assertUnprocessable()->assertJsonValidationErrors('image');
+        }
+    }
 }

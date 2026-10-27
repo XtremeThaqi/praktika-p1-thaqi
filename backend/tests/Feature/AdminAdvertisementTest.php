@@ -224,4 +224,20 @@ class AdminAdvertisementTest extends TestCase
         }
         $this->assertSame(6, Advertisement::count());
     }
+
+    public function test_valid_image_content_with_a_different_allowed_extension_is_rejected(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::firstOrFail();
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=');
+
+        foreach (['image.jpg', 'image.webp'] as $name) {
+            $this->post('/api/admin/advertisements', $this->fields($business) + [
+                'image' => UploadedFile::fake()->createWithContent($name, $png),
+            ], ['Accept' => 'application/json'])->assertUnprocessable()->assertJsonValidationErrors('image');
+        }
+        $this->assertSame(6, Advertisement::count());
+    }
 }

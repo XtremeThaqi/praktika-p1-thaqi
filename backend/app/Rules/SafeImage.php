@@ -22,8 +22,12 @@ class SafeImage implements ValidationRule
             return;
         }
         $mime = (new \finfo(FILEINFO_MIME_TYPE))->file($value->getRealPath());
+        $allowedMime = [
+            'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg',
+            'png' => 'image/png', 'webp' => 'image/webp',
+        ][$extension];
         $dimensions = @getimagesize($value->getRealPath());
-        if (! in_array($mime, ['image/jpeg', 'image/png', 'image/webp'], true)
+        if ($mime !== $allowedMime
             || ! is_array($dimensions) || ($dimensions[0] ?? 0) < 1 || ($dimensions[1] ?? 0) < 1
             || $dimensions[0] > 10000 || $dimensions[1] > 10000 || ($dimensions[0] * $dimensions[1]) > 25000000
             || ! $this->hasCompleteContainer($value->getRealPath(), $mime)) {
