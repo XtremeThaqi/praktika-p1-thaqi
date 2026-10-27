@@ -13,6 +13,7 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
   const [form, setForm] = useState(emptyForm)
   const [businesses, setBusinesses] = useState(null)
   const [selectedBusiness, setSelectedBusiness] = useState(null)
+  const [useExternal, setUseExternal] = useState(false)
   const [businessQuery, setBusinessQuery] = useState('')
   const [image, setImage] = useState(null)
   const [previewUrl, setPreviewUrl] = useState('')
@@ -50,6 +51,7 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
           ends_at_local: data.ends_at_local, priority: data.priority, is_active: data.is_active,
         })
         setSelectedBusiness(data.business)
+        setUseExternal(Boolean(data.destination))
         setStoredImage(data.image_path)
         setStatus(data.status)
         setLoading(false)
@@ -153,9 +155,10 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
     {feedback && <p role="status" className="mt-5 rounded-xl bg-emerald-50 p-4 text-emerald-900">{feedback}</p>}
     {loading ? <p role="status" className="mt-6">Duke ngarkuar reklamën…</p> : <>
       <p className="mt-5 text-sm text-muted">Orët futen sipas Europe/Belgrade (Lipjan). Koha e paqartë gjatë ndërrimit të orës verore refuzohet.</p>
-      <form onSubmit={save} className="mt-6 space-y-7 rounded-2xl border border-line bg-white p-5 sm:p-7">
+      <form onSubmit={save} className="mt-6 grid gap-7 rounded-2xl border border-line bg-white p-5 sm:p-7 lg:grid-cols-2 lg:items-start">
         <div className="grid gap-5 md:grid-cols-2">
-          <div className="md:col-span-2">
+          <div className="md:col-span-2 lg:col-span-2">
+            <p className="eyebrow text-forest">01 · Zgjedhja e biznesit</p>
             <label htmlFor="business-search" className="text-sm font-semibold">Kërko biznesin</label>
             <input id="business-search" className="field mt-2" value={businessQuery} onChange={(event) => setBusinessQuery(event.target.value)}
               placeholder="Shkruani emrin për të kërkuar edhe draftet dhe arkivat" />
@@ -173,19 +176,22 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
             </select>
             {fieldError('business_id') && <span className="mt-2 block text-red-900">{fieldError('business_id')}</span>}
           </label>
-          <label className="min-w-0 text-sm font-semibold">Pozicioni *
-            <select className="field mt-2" value={form.placement} onChange={(event) => change('placement', event.target.value)}>
-              {Object.entries(placementLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
-            </select>
+          <fieldset className="md:col-span-2">
+            <legend className="eyebrow text-forest">02 · Pozicioni</legend>
+            <div className="mt-3 grid gap-3 sm:grid-cols-2">
+              {Object.entries(placementLabels).map(([value, label]) => <button key={value} type="button"
+                className={`rounded-2xl border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-forest ${form.placement === value ? 'border-forest bg-[#edf2e9]' : 'border-line bg-cream'}`}
+                aria-pressed={form.placement === value} onClick={() => change('placement', value)}>
+                <span className="block text-2xl" aria-hidden="true">{value === 'home_banner' ? '▰' : '▤'}</span>
+                <span className="mt-2 block font-semibold">{label}</span>
+                <span className="mt-1 block text-xs text-muted">{value === 'home_banner' ? 'Ballina kryesore' : 'Pranë listës së rezultateve'}</span>
+              </button>)}
+            </div>
             {fieldError('placement') && <span className="mt-2 block text-red-900">{fieldError('placement')}</span>}
-          </label>
+          </fieldset>
           <label className="min-w-0 text-sm font-semibold">Teksti alternativ i imazhit *
             <input className="field mt-2" value={form.alt_text} maxLength="255" required onChange={(event) => change('alt_text', event.target.value)} aria-invalid={Boolean(fieldError('alt_text'))} />
             {fieldError('alt_text') && <span className="mt-2 block text-red-900">{fieldError('alt_text')}</span>}
-          </label>
-          <label className="min-w-0 text-sm font-semibold">Destinacioni HTTP(S) *
-            <input className="field mt-2" type="url" value={form.destination} required onChange={(event) => change('destination', event.target.value)} aria-invalid={Boolean(fieldError('destination'))} />
-            {fieldError('destination') && <span className="mt-2 block text-red-900">{fieldError('destination')}</span>}
           </label>
           <label className="min-w-0 text-sm font-semibold">Fillimi · ora e Lipjanit *
             <input className="field mt-2 min-w-0" type="datetime-local" value={form.starts_at_local} required onChange={(event) => change('starts_at_local', event.target.value)} aria-invalid={Boolean(fieldError('starts_at_local'))} />
@@ -195,16 +201,26 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
             <input className="field mt-2 min-w-0" type="datetime-local" value={form.ends_at_local} required onChange={(event) => change('ends_at_local', event.target.value)} aria-invalid={Boolean(fieldError('ends_at_local'))} />
             {fieldError('ends_at_local') && <span className="mt-2 block text-red-900">{fieldError('ends_at_local')}</span>}
           </label>
-          <label className="min-w-0 text-sm font-semibold">Prioriteti (0–65535) *
-            <input className="field mt-2" type="number" min="0" max="65535" step="1" value={form.priority} required onChange={(event) => change('priority', event.target.value)} aria-invalid={Boolean(fieldError('priority'))} />
-            {fieldError('priority') && <span className="mt-2 block text-red-900">{fieldError('priority')}</span>}
-          </label>
           <label className="flex items-center gap-3 self-end text-sm font-semibold">
             <input type="checkbox" checked={form.is_active} onChange={(event) => change('is_active', event.target.checked)} />
             E aktivizuar
           </label>
         </div>
-        {selected && selected.status !== 'published' && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-950">Ky biznes nuk është i publikuar. Reklama nuk shfaqet publikisht edhe nëse aktivizohet.</p>}
+        {selected && selected.status !== 'published' && <p className="rounded-xl bg-amber-50 p-3 text-sm text-amber-950 lg:col-start-1">Ky biznes nuk është i publikuar. Reklama nuk shfaqet publikisht edhe nëse aktivizohet.</p>}
+        <details className="rounded-xl border border-line bg-cream p-4 lg:col-start-1">
+          <summary className="cursor-pointer font-semibold">Cilësime të avancuara</summary>
+          <div className="mt-4 grid gap-4">
+            <label className="flex items-center gap-3 text-sm font-semibold"><input type="checkbox" checked={useExternal} onChange={(event) => { setUseExternal(event.target.checked); if (!event.target.checked) change('destination', '') }} /> Përdor lidhje të jashtme</label>
+            {useExternal ? <label className="text-sm font-semibold">Lidhje HTTP(S)
+              <input className="field mt-2" type="url" value={form.destination} required onChange={(event) => change('destination', event.target.value)} aria-invalid={Boolean(fieldError('destination'))} />
+              {fieldError('destination') && <span className="mt-2 block text-red-900">{fieldError('destination')}</span>}
+            </label> : <p className="text-sm text-muted">Klikimi hap profilin e ruajtur të biznesit.</p>}
+            <label className="text-sm font-semibold">Prioriteti (0–65535)
+              <input className="field mt-2" type="number" min="0" max="65535" step="1" value={form.priority} required onChange={(event) => change('priority', event.target.value)} aria-invalid={Boolean(fieldError('priority'))} />
+              {fieldError('priority') && <span className="mt-2 block text-red-900">{fieldError('priority')}</span>}
+            </label>
+          </div>
+        </details>
         <section aria-label="Imazhi i reklamës" className="border-t border-line pt-6">
           <label className="block text-sm font-semibold">{id ? 'Zëvendëso imazhin' : 'Imazhi JPG, PNG ose WebP · deri në 5 MB *'}
             <input className="field mt-2 min-w-0" type="file" accept="image/jpeg,image/png,image/webp" required={!id}
@@ -215,14 +231,14 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
             {uploading ? 'Duke ngarkuar…' : 'Ruaj imazhin e ri'}
           </button>}
         </section>
-        <section aria-label="Pamja paraprake" className="rounded-2xl border border-line bg-[#f2ead9] p-5">
+        <section aria-label="Pamja paraprake" className="rounded-2xl border border-line bg-[#f2ead9] p-5 lg:sticky lg:top-6 lg:col-start-2 lg:row-start-1">
           <p className="eyebrow text-[#765016]">Reklamë {selected?.is_demo ? '· Demonstrim' : ''}</p>
           {visibleImage && !imageFailed ? <img className="mt-4 max-h-44 w-full rounded-lg object-contain" src={visibleImage} alt={form.alt_text || 'Pamje paraprake'} onError={() => setImageFailed(true)} />
             : <p className="mt-4 text-sm text-muted">{imageFailed ? 'Imazhi nuk mund të shfaqet.' : 'Zgjidhni një imazh për pamjen paraprake.'}</p>}
           <p className="mt-4 font-semibold">{selected?.name || 'Zgjidhni biznesin'}</p>
-          <p className="mt-2 text-sm text-muted">Kjo pamje nuk do të thotë se reklama është aktualisht e vlefshme për publikim.{status && ` Gjendja e ruajtur: ${statusLabels[status]}.`}</p>
+          <p className="mt-2 text-sm text-muted">Pamje paraprake — nuk publikohet pa ruajtur formularin.{status && ` Gjendja e ruajtur: ${statusLabels[status]}.`}</p>
         </section>
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap gap-3 lg:col-span-2">
           <button type="submit" className="button-primary" disabled={saving || uploading}>{saving ? 'Duke ruajtur…' : id ? 'Ruaj ndryshimet' : 'Krijo reklamën'}</button>
           <Link href="/admin/advertisements" navigate={navigate} className="button-secondary">Anulo</Link>
         </div>

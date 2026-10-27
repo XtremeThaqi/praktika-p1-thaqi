@@ -54,7 +54,9 @@ export default function Advertisement({ placement, onOpen }) {
     }
   }, [placement])
   if (!advertisement) return null
-  const destination = safeWebsite(advertisement.destination)
+  const destination = advertisement.destination?.startsWith('/bizneset/')
+    ? advertisement.destination
+    : safeWebsite(advertisement.destination)
   return (
     <aside
       aria-label="Reklamë"
@@ -80,7 +82,11 @@ export default function Advertisement({ placement, onOpen }) {
         </p>
       )}
       <div className="mt-4">
-        {advertisement.business.is_demo ? (
+        {advertisement.destination?.startsWith('/bizneset/') ? (
+          <button className="button-secondary" onClick={() => onOpen(advertisement.business.slug)}>
+            Shiko profilin e biznesit <Icon />
+          </button>
+        ) : advertisement.business.is_demo ? (
           <button
             className="button-secondary"
             onClick={() => onOpen(advertisement.business.slug)}

@@ -27,7 +27,7 @@ class AdvertisementController extends Controller
                     'id' => $advertisement->id,
                     'image_path' => $advertisement->image_path,
                     'alt_text' => $advertisement->alt_text,
-                    'destination' => $advertisement->destination,
+                    'destination' => $advertisement->destination ?: '/bizneset/'.$advertisement->business->slug,
                     'placement' => $advertisement->placement,
                     'expires_at' => $advertisement->ends_at->toIso8601String(),
                     'business' => $advertisement->business->only(['id', 'name', 'slug', 'is_demo']),

@@ -203,4 +203,23 @@ class AdminAdvertisementTest extends TestCase
         $this->putJson('/api/admin/advertisements/'.Advertisement::firstOrFail()->id, $this->fields($business))->assertForbidden();
         $this->assertSame($count, Advertisement::count());
     }
+
+    public function test_malformed_and_disguised_uploads_are_rejected(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::firstOrFail();
+        foreach ([
+            UploadedFile::fake()->createWithContent('script.php', '<?php echo "no";'),
+            UploadedFile::fake()->createWithContent('script.jpg', '<?php echo "no";'),
+            UploadedFile::fake()->createWithContent('double.php.jpg', '<html>no</html>'),
+            UploadedFile::fake()->createWithContent('image.svg', '<svg></svg>'),
+            UploadedFile::fake()->createWithContent('broken.png', 'not an image'),
+        ] as $upload) {
+            $this->post('/api/admin/advertisements', $this->fields($business) + ['image' => $upload], ['Accept' => 'application/json'])
+                ->assertUnprocessable()->assertJsonValidationErrors('image');
+        }
+        $this->assertSame(6, Advertisement::count());
+    }
 }
