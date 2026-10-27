@@ -97,7 +97,7 @@ class AdminAdvertisementTest extends TestCase
         $original = $ad->only(['business_id', 'placement', 'image_path', 'priority', 'starts_at', 'ends_at']);
         foreach ([
             ['business_id' => 999999], ['placement' => 'unknown'], ['destination' => 'javascript:alert(1)'],
-            ['alt_text' => ''], ['priority' => 65536],
+            ['alt_text' => ''], ['alt_text' => '   '], ['priority' => 65536],
             ['ends_at_local' => $this->fields($business)['starts_at_local']],
             ['ends_at_local' => now()->subDay()->timezone('Europe/Belgrade')->format('Y-m-d\TH:i')],
         ] as $change) {
@@ -169,6 +169,25 @@ class AdminAdvertisementTest extends TestCase
                 'starts_at_local' => $local, 'ends_at_local' => '2026-10-28T12:00',
             ]) + ['image' => $this->image()], ['Accept' => 'application/json'])
                 ->assertUnprocessable()->assertJsonValidationErrors('starts_at_local');
+        }
+    }
+
+    public function test_local_summer_and_winter_times_are_stored_in_utc(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::firstOrFail();
+
+        foreach ([
+            ['2026-07-01T12:00', '2026-07-01T13:00', '2026-07-01 10:00:00'],
+            ['2027-01-01T12:00', '2027-01-01T13:00', '2027-01-01 11:00:00'],
+        ] as [$start, $end, $expectedUtc]) {
+            $response = $this->post('/api/admin/advertisements', $this->fields($business, [
+                'starts_at_local' => $start, 'ends_at_local' => $end,
+            ]) + ['image' => $this->image()], ['Accept' => 'application/json'])->assertCreated();
+            $this->assertSame($expectedUtc, Advertisement::findOrFail($response->json('data.id'))->getRawOriginal('starts_at'));
+            $response->assertJsonPath('data.starts_at_local', $start);
         }
     }
 

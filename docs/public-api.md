@@ -39,9 +39,9 @@ Each returns `{ "data": [...] }`, with `id`, `name` and `slug`, ordered by name 
 
 `GET /api/advertisements` returns at most one winner for each of `home_banner` and `results_sidebar`. `GET /api/advertisements?placement=home_banner` or `placement=results_sidebar` restricts the response to one placement. No valid winner returns `{ "data": [] }`.
 
-An eligible advertisement is enabled, belongs to a published business and satisfies `starts_at <= now < ends_at`, using the application's UTC clock. Highest priority wins, followed by oldest creation time and lowest ID. Scheduled, expired, disabled and unpublished-business ads are excluded. Responses use `Cache-Control: no-store`; clients must refetch to observe expiry.
+An eligible advertisement is enabled, belongs to a published business and satisfies `starts_at <= now < ends_at`, using the application's UTC clock. Highest priority wins, followed by oldest creation time and lowest ID. Scheduled, expired, disabled and unpublished-business ads are excluded. Responses use `Cache-Control: no-store`.
 
-Returned fields are ID, image path, alternative text, destination, placement and a small business object (`id`, `name`, `slug`, `is_demo`). Clients must label the placement “Reklamë” or “E sponsorizuar”. Advertisements remain separate from business matches and do not change business totals or pagination.
+Returned fields are ID, image path, alternative text, destination, placement, `expires_at` and `server_time` as ISO timestamps, and a small business object (`id`, `name`, `slug`, `is_demo`). The client uses the server timestamps to hide an ad at its exact end time, then refetches on focus and every 60 seconds. Clients must label the placement “Reklamë” or “E sponsorizuar”. Advertisements remain separate from business matches and do not change business totals or pagination.
 
 ## Errors and verification
 
@@ -121,3 +121,21 @@ The optional `q` parameter searches names without case or Albanian accent differ
 Category and settlement deletion checks every related business, regardless of publication status, and the database foreign keys also restrict deletion. Service deletion requires the exact current name because removing it also removes its associations from businesses. Both pivot detachment and deletion run in one transaction; business rows are retained. The public lookup endpoints above immediately reflect changes, so homepage categories, directory filters and administrator business forms use the new values without hardcoded lists. Deleted services disappear from public lookups and profiles.
 
 The complete Day 8 suite passed on MariaDB 10.4.32 (90 tests/578 assertions) and SQLite (90 tests/564 assertions, 14 database-specific skips). T-10 browser evidence and remaining limitations are in `acceptance-tests.md`. Actual MySQL 8 was not tested.
+
+## Administrator advertisement management — 27 October 2026
+
+The protected React pages are `/admin/advertisements` and `/admin/advertisements/new`; each record has an edit page. The list searches the business name and filters by placement or derived status (`active_now`, `scheduled`, `expired`, `disabled`, `unpublished_business`). Results have 12 records per page.
+
+| Request | Result |
+| --- | --- |
+| `GET /api/admin/advertisements?q=&placement=&status=&page=` | Paginated list with business, placement, schedule, priority and derived status |
+| `GET /api/admin/advertisements/{id}` | Stored advertisement and its local-time form fields |
+| `POST /api/admin/advertisements` | Create with image upload; returns 201 |
+| `PUT /api/admin/advertisements/{id}` | Update fields without replacing the image |
+| `POST /api/admin/advertisements/{id}/image` | Replace the image independently |
+| `PATCH /api/admin/advertisements/{id}/toggle` | Enable or disable using `{ "is_active": true/false }` |
+| `DELETE /api/admin/advertisements/{id}` | Delete the advertisement, leaving its business intact |
+
+Create requires `business_id`, `placement` (`home_banner` or `results_sidebar`), `alt_text` (3–255 nonblank characters), HTTP(S) `destination`, `starts_at_local` and `ends_at_local` (`YYYY-MM-DDTHH:mm`), `priority` (0–65535), and a JPG/PNG/WebP image no larger than 5 MB. `is_active` defaults to false. Update requires the same fields except the image. The server converts Europe/Belgrade local form times to UTC for storage and rejects nonexistent or repeated daylight saving times and an end no later than the start. Responses expose both UTC and Europe/Belgrade times. Invalid fields return 422 with field errors. New uploads are stored on the public disk; replacing or deleting an ad removes only its own uploaded image, leaving shared demo assets untouched. Run `php artisan storage:link` to serve uploads.
+
+All endpoints require the existing administrator session and CSRF protection. Guests receive 401 and authenticated non-administrators 403. An enabled ad linked to a draft or archived business remains ineligible publicly. The public winner order and organic business counts are unchanged. See `acceptance-tests.md` for T-13 evidence.

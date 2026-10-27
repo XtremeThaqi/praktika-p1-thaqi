@@ -1,9 +1,9 @@
 <?php
 
+use App\Http\Controllers\AdminAdvertisementController;
 use App\Http\Controllers\AdminAuthController;
 use App\Http\Controllers\AdminBusinessController;
 use App\Http\Controllers\AdminDashboardController;
-use App\Http\Controllers\AdminAdvertisementController;
 use App\Http\Controllers\AdminTaxonomyController;
 use Illuminate\Support\Facades\Route;
 

@@ -16,10 +16,19 @@ Statuses below reflect the recorded runtime evidence. Source inspection is not a
 | T-10 | Admin creates category | Available in admin form and public filters without code change | Passed, 26 Oct 2026 |
 | T-11 | Admin archives business | Business and ads disappear; direct public URL unavailable; data retained | Passed, 25 Oct 2026 |
 | T-12 | Visitor attempts admin action | Backend rejects request, database unchanged; repeat after logout | Passed, 25 Oct 2026 |
-| T-13 | Ad reaches end time | Visible just before end, absent exactly at end and after reload | Pending |
+| T-13 | Ad reaches end time | Visible just before end, absent exactly at end and after reload | Passed, 27 Oct 2026 |
 | T-14 | Map/network failure | Clear fallback/retry; contacts and surrounding content remain usable | Passed, 23 Oct 2026 |
 
 T-08, T-09 and T-11 combine the persisted Laravel tests with the local browser flow. T-12 includes unauthenticated and non-administrator write rejection, a write rejected after logout, unchanged row counts, and a browser redirect to sign-in.
+
+## Day 9 — 27 October 2026
+
+- T-13 used a controlled Laravel clock: a created ad was public at its start and one second before its end; at the exact end it was excluded and the eligible seeded ad became the winner. A reload still excluded it. Dashboard eligible count fell from four to three, while business search totals stayed unchanged. Disabled, scheduled, expired and unpublished-business states were checked separately.
+- In a local browser against an isolated SQLite database, an administrator created an enabled, high-priority home banner for published demo business Dyqani 02. It appeared on the homepage. While the page remained open, its image and alt text changed to the eligible seeded winner when its scheduled end arrived, without navigation; reload kept that winner. The ad was then moved to the results sidebar, disabled and re-enabled, and its image was replaced. The public directory followed each change without changing its 26-business total. Browser Back and Forward worked, and no console errors were recorded.
+- The administrator list and form were checked at 320, 375, 390, 768, 1024 and 1440 CSS pixels: controls remained visible and no document-level horizontal overflow occurred. The browser test ad was deleted after verification; its business and public counts remained intact. Automated checks covered image type/size, HTTP(S) destinations, schedule order, summer/winter UTC conversion, ambiguous and nonexistent daylight saving times, authentication, authorization and image ownership.
+- The Day 8 service deletion form now displays the server's field error when the exact-name confirmation is wrong. The existing backend test confirms that a failed confirmation leaves the service and links unchanged.
+- The browser used an isolated local database; the normal demonstration database was not modified. Physical mobile Safari and actual MySQL 8 remain untested. T-06 remains pending.
+- Stopping the local backend made the advertisement list show its error and retry action; restarting it and choosing retry restored the filtered list. Logging out and directly revisiting the protected route redirected to sign-in. The full MariaDB 10.4.32 suite passed 97 tests/668 assertions; SQLite passed 83 tests/654 assertions with 14 engine-specific skips. Frontend tests passed 18/18, PHP formatting and Composer validation passed, and the production frontend build passed.
 
 ## Day 8 — 26 October 2026
 

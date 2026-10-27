@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Advertisement;
-use App\Models\Business;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -136,6 +135,9 @@ class AdminAdvertisementController extends Controller
 
     private function validatedFields(Request $request): array
     {
+        if (is_string($request->input('alt_text'))) {
+            $request->merge(['alt_text' => trim($request->input('alt_text'))]);
+        }
         $data = $request->validate([
             'business_id' => ['required', 'integer', 'exists:businesses,id'],
             'placement' => ['required', Rule::in(['home_banner', 'results_sidebar'])],
