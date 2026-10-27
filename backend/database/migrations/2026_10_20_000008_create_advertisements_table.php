@@ -14,7 +14,7 @@ return new class extends Migration
             $table->foreignId('business_id')->constrained()->cascadeOnDelete();
             $table->string('image_path');
             $table->string('alt_text');
-            $table->string('destination', 2048)->nullable();
+            $table->string('destination', 2048);
             $table->enum('placement', ['home_banner', 'results_sidebar']);
             $table->dateTime('starts_at');
             $table->dateTime('ends_at');

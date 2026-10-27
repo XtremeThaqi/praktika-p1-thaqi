@@ -210,12 +210,14 @@ class AdminAdvertisementTest extends TestCase
         $this->admin();
         Storage::fake('public');
         $business = Business::firstOrFail();
+        $appendedPng = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=').'APPENDED';
         foreach ([
             UploadedFile::fake()->createWithContent('script.php', '<?php echo "no";'),
             UploadedFile::fake()->createWithContent('script.jpg', '<?php echo "no";'),
             UploadedFile::fake()->createWithContent('double.php.jpg', '<html>no</html>'),
             UploadedFile::fake()->createWithContent('image.svg', '<svg></svg>'),
             UploadedFile::fake()->createWithContent('broken.png', 'not an image'),
+            UploadedFile::fake()->createWithContent('appended.png', $appendedPng),
         ] as $upload) {
             $this->post('/api/admin/advertisements', $this->fields($business) + ['image' => $upload], ['Accept' => 'application/json'])
                 ->assertUnprocessable()->assertJsonValidationErrors('image');
