@@ -30,22 +30,22 @@ export default function HomePage({ navigate, onOpen }) {
   }, [attempt])
   return (
     <>
-      <section className="container grid items-center gap-12 py-14 sm:py-20 lg:grid-cols-[1.2fr_1fr] lg:gap-16">
-        <div>
+      <section className="container grid items-center gap-10 py-12 sm:py-16 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)] lg:gap-14 lg:py-20">
+        <div className="min-w-0">
           <p className="eyebrow flex items-center gap-2">
             <span className="size-2 rounded-full bg-forest" />
             Pranë teje, në Lipjan
           </p>
-          <h1 className="page-title mt-6 text-5xl sm:text-7xl">
+          <h1 className="page-title mt-5 text-[clamp(2.7rem,6vw,4.5rem)]">
             Gjeje pranë.
             <br />
             <span className="text-forest">Gjeje në Lipjan.</span>
           </h1>
-          <p className="mt-6 max-w-lg text-lg leading-8 text-muted">
+          <p className="mt-5 max-w-lg text-base leading-7 text-muted sm:text-lg sm:leading-8">
             Një vend për të zbuluar bizneset, shërbimet dhe mundësitë që ofron
             komuna jonë.
           </p>
-          <div className="mt-8">
+          <div className="mt-7 max-w-xl">
             <SearchForm
               onSearch={(q) =>
                 navigate(`/bizneset${q ? `?q=${encodeURIComponent(q)}` : ''}`)
@@ -57,18 +57,18 @@ export default function HomePage({ navigate, onOpen }) {
           </p>
         </div>
         <div
-          className="relative rounded-[2rem] bg-[#e7ecdf] px-6 pt-10 pb-6 sm:px-10"
+          className="relative min-w-0 rounded-[1.75rem] border border-forest/10 bg-[#e7ecdf] px-6 pt-7 pb-6 sm:px-9 sm:pt-9"
           aria-label="Ilustrim i dyqaneve lokale"
           role="img"
         >
-          <p className="font-display text-3xl text-forest">
+          <p className="font-display text-[clamp(1.65rem,3vw,2.2rem)] leading-tight text-forest">
             Një komunë.
             <br />
             Shumë mundësi.
           </p>
           <svg
             viewBox="0 0 420 290"
-            className="mt-4 w-full"
+            className="mx-auto mt-4 max-h-72 w-full"
             fill="none"
             aria-hidden="true"
           >
@@ -126,7 +126,7 @@ export default function HomePage({ navigate, onOpen }) {
           </p>
         </div>
       </section>
-      <section className="border-y border-line bg-white/60 py-14">
+      <section className="border-y border-line bg-white/65 py-12 sm:py-16">
         <div className="container">
           <p className="eyebrow">Nis nga ajo që të duhet</p>
           <h2 className="section-title mt-3">Eksploro sipas kategorisë</h2>
@@ -146,27 +146,32 @@ export default function HomePage({ navigate, onOpen }) {
               </button>
             </div>
           )}
-          {data && (
+          {data && data.categories.length === 0 && (
+            <p className="mt-8 rounded-xl border border-line bg-white p-6 text-muted">
+              Kategoritë nuk janë publikuar ende. Mund t’i shohësh bizneset në katalog.
+            </p>
+          )}
+          {data && data.categories.length > 0 && (
             <div className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {data.categories.map((category, index) => (
                 <Link
                   key={category.id}
                   href={`/bizneset?category=${encodeURIComponent(category.slug)}`}
                   navigate={navigate}
-                  className="group flex min-h-24 items-center gap-4 rounded-xl border border-line bg-white p-5 transition-colors hover:border-forest hover:bg-[#eef2e9]"
+                  className="group flex min-h-24 min-w-0 items-center gap-4 rounded-xl border border-line bg-white p-5 transition-[border-color,background-color,transform] hover:border-forest/50 hover:bg-[#eef2e9] focus-visible:border-forest"
                 >
-                  <span className="font-display text-2xl text-muted/60">
+                  <span className="shrink-0 font-display text-2xl text-muted/70">
                     {String(index + 1).padStart(2, '0')}
                   </span>
-                  <span className="flex-1 font-semibold">{category.name}</span>
-                  <Icon className="size-5 text-forest" />
+                  <span className="min-w-0 flex-1 break-words font-semibold leading-snug">{category.name}</span>
+                  <Icon className="size-5 shrink-0 text-forest" />
                 </Link>
               ))}
             </div>
           )}
         </div>
       </section>
-      <section className="container py-14 sm:py-20">
+      <section className="container py-12 sm:py-16">
         <div className="flex flex-wrap items-end justify-between gap-6">
           <div>
             <p className="eyebrow">Nga katalogu</p>
@@ -185,7 +190,7 @@ export default function HomePage({ navigate, onOpen }) {
           </Link>
         </div>
         {data && (
-          <div className="mt-8 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {data.businesses.map((business) => (
               <BusinessCard
                 key={business.id}
@@ -195,8 +200,13 @@ export default function HomePage({ navigate, onOpen }) {
             ))}
           </div>
         )}
+        {data && data.businesses.length === 0 && (
+          <p className="mt-8 rounded-2xl border border-line bg-white p-7 text-muted">
+            Nuk ka biznese të publikuara për t’u shfaqur këtu ende.
+          </p>
+        )}
       </section>
-      <div className="container pb-14">
+      <div className="container pb-12 sm:pb-16">
         <Advertisement placement="home_banner" onOpen={onOpen} />
       </div>
     </>
