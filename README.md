@@ -4,7 +4,7 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 ## Gjendja aktuale
 
-Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas dhe të dhënat demo identifikohen qartë.
+Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas; katalogu është projekt studentor me profile ilustruese, jo regjistër zyrtar komunal.
 
 Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Hyrja e administratorit dhe paneli me statistika reale janë në `/admin/login` dhe `/admin/dashboard`. Në `/admin/businesses`, administratori mund të kërkojë, filtrojë, shtojë, ndryshojë, publikojë dhe arkivojë biznese. `/admin/advertisements` menaxhon reklamat, imazhet dhe afatet e tyre. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
 
@@ -59,11 +59,13 @@ Për të mbushur bazën me të dhëna demonstrimi, nga `backend/`:
 php artisan db:seed
 ```
 
-Krijohen 30 biznese demo (26 të publikuara, 2 drafte, 2 të arkivuara), 6 kategori, 4 vendbanime, 10 shërbime, 85 lidhje biznes-shërbim, 140 rreshta orari, 21 imazhe dhe 6 reklama. Reklamat përfshijnë 3 aktuale, 1 të planifikuar, 1 të skaduar dhe 1 të çaktivizuar. Datat llogariten në UTC nga koha e ekzekutimit; `is_active` është çelësi i aktivizimit, ndërsa scope `active()` kontrollon edhe datat dhe biznesin e publikuar.
+Krijohen 30 profile ilustruese (26 të publikuara, 2 drafte, 2 të arkivuara), 6 kategori, 4 vendbanime, 10 shërbime, 85 lidhje biznes-shërbim, 140 rreshta orari, 26 fotografi dhe 6 reklama. Reklamat përfshijnë 3 aktuale, 1 të planifikuar, 1 të skaduar dhe 1 të çaktivizuar. Datat llogariten në UTC nga koha e ekzekutimit; `is_active` është çelësi i aktivizimit, ndërsa scope `active()` kontrollon edhe datat dhe biznesin e publikuar.
 
 Seeders mund të ekzekutohen përsëri pa dyfishuar rekordet ose ndryshuar ID-të. Ata rifreskojnë bizneset demo dhe afatet e reklamave demo, prandaj nuk duhen përdorur për të ruajtur ndryshime manuale mbi këto rekorde. Përdoruesit dhe bizneset jashtë grupit demo ruhen. `DatabaseSeeder` i ekzekuton të tre seeders brenda një transaksioni; një konflikt me një slug ekzistues jashtë grupit demo ndërpret transaksionin.
 
-Bizneset kanë `is_demo=true` dhe emra me shenjën “(Demo)”. Kontaktet, adresat, koordinatat dhe ilustrimet janë të simuluara. `location_verified=false`; asnjë pin nuk paraqitet si i verifikuar. Domenet përdorin `example.com`. Ilustrimet SVG janë krijuar për këtë projekt dhe shënohen “DEMO”; gjenden te `backend/public/demo/`.
+Profilet e seeder-it janë fiktive dhe mbajnë `is_demo=true` për dallim administrativ. Emrat dhe përshkrimet nuk identifikojnë biznese të regjistruara. Numrat e telefonit, adresat e sakta, email-et, faqet dhe koordinatat lihen bosh që të mos drejtojnë vizitorët te persona ose hyrje të paqena; `location_verified=false`. Për këtë arsye profilet ilustruese nuk kanë pin ose udhëzime. Sjellja e telefonit, email-it, website-it dhe hartës testohet me fixtures të kontrolluara. Orari dhe shërbimet e profileve janë gjithashtu ilustruese. Fotografitë tregojnë llojin e aktivitetit dhe nuk paraqesin ambientin e biznesit të emërtuar. Burimet, autorët dhe licenca janë në `backend/database/seeders/presentation-photos.json`; skedarët lokalë janë në `backend/public/demo/photos/`.
+
+Fotografitë vijnë nga Pexels dhe ruhen lokalisht me gjerësi deri në 960 pikselë. [Licenca e Pexels](https://www.pexels.com/license/) lejon përdorimin në faqe dhe reklama; autorët dhe URL-të e skedarëve burimorë dokumentohen për secilën fotografi në manifest. Fotografitë nuk janë logo dhe nuk nënkuptojnë mbështetje nga personat ose markat që mund të shihen në to.
 
 Drafteve mund t'u mungojnë të dhëna. Kategoritë dhe vendbanimet nuk fshihen kur përdoren nga biznese; shërbimet duhen shkëputur përpara fshirjes. Paneli administrues përdor arkivimin, jo fshirjen fizike: rreshti ruhet, por nuk shfaqet publikisht dhe reklamat e lidhura nuk janë më aktive. Për bizneset reale, administratori konfirmon përputhjen e koordinatave me adresën para publikimit. Bizneset demo mbeten të shënuara si të simuluara.
 
@@ -136,7 +138,7 @@ Punohet në feature branches me commits që përfaqësojnë ndryshime reale. Bas
 
 ## Profilet dhe hartat — 23 tetor 2026
 
-Leaflet instalohet me `npm ci`; nuk kërkohet çelës API për hartën bazë OpenStreetMap. Atributimi ruhet. Koordinatat demo janë të simuluara dhe etiketohen; pa koordinata të vlefshme nuk vendoset pin. Nëse pllakat e hartës dështojnë, shfaqet mesazh dhe mundësi riprovimi, ndërsa adresa/kontaktet mbeten të përdorshme. Telefoni, email-i dhe linket e jashtme përdorin vetëm vlerat e ruajtura; mungesat nuk plotësohen me shembuj.
+Leaflet instalohet me `npm ci`; nuk kërkohet çelës API për hartën bazë OpenStreetMap. Atributimi ruhet. Profilet ilustruese nuk kanë koordinata; pa koordinata të vlefshme nuk vendoset pin. Nëse pllakat e hartës dështojnë, shfaqet mesazh dhe mundësi riprovimi. Telefoni, email-i dhe linket e jashtme përdorin vetëm vlerat e ruajtura; mungesat nuk plotësohen me shembuj.
 
 Kaluan 12 teste frontend, 66 teste MariaDB/331 assertions dhe 52 teste SQLite/317 assertions (14 kontrolle specifike u anashkaluan). T-14 u verifikua në shfletues; T-06 mbetet në pritje të provës përfundimtare të kontaktit në pajisje të përshtatshme. Nuk u kryen telefonata ose dërgime email-esh gjatë testeve. Shihni [profilin me hartë](docs/screenshots/profile-map-desktop.png) dhe [profilin në telefon](docs/screenshots/profile-mobile.png).
 

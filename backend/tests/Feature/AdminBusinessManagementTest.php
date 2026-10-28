@@ -46,7 +46,7 @@ class AdminBusinessManagementTest extends TestCase
         $this->getJson('/api/admin/businesses?status=draft')->assertOk()
             ->assertJsonPath('total', 2)->assertJsonCount(2, 'data');
         $this->getJson('/api/admin/businesses?status=archived')->assertOk()->assertJsonPath('total', 2);
-        $this->getJson('/api/admin/businesses?q=Kuzhina')->assertOk()->assertJsonPath('total', 5);
+        $this->getJson('/api/admin/businesses?q=Kafja')->assertOk()->assertJsonPath('total', 2);
         $this->getJson('/api/admin/businesses?page=2')->assertOk()->assertJsonPath('current_page', 2);
     }
 
