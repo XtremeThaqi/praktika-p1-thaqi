@@ -105,8 +105,7 @@ export default function SiteLayout({ children, pathname, navigate }) {
           <div>
             <p className="font-display text-3xl">Njih më mirë vendin tënd.</p>
             <p className="mt-4 max-w-md text-sm leading-7 text-white/70">
-              Biznese, shërbime dhe kontakte të komunës së Lipjanit, të
-              mbledhura në një vend.
+              Një hapësirë për të eksploruar biznese dhe shërbime në zonën e Lipjanit.
             </p>
           </div>
           <nav
@@ -138,8 +137,7 @@ export default function SiteLayout({ children, pathname, navigate }) {
           </div>
         </div>
         <div className="container border-t border-white/15 py-6 text-xs leading-6 text-white/60">
-          Bizneset e Lipjanit · Të dhënat e shënuara “Demo” janë të simuluara
-          dhe nuk paraqesin biznese të verifikuara.
+          Bizneset e Lipjanit · Katalogu i këtij projekti studentor përmban profile ilustruese, jo biznese të verifikuara.
         </div>
       </footer>
     </>

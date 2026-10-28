@@ -27,9 +27,8 @@ export default function ContactPage({ navigate }) {
             Një projekt për të zbuluar afër.
           </h2>
           <p className="mt-4 leading-7 text-muted">
-            Kjo platformë është projekt studentor. Bizneset dhe reklamat me
-            shenjën “Demo” përmbajnë të dhëna demonstrimi. Ato nuk duhen përdorur
-            si informacion real kontakti ose si rekomandim.
+            Kjo platformë është projekt studentor për të eksploruar kategori,
+            vendbanime dhe shërbime në një katalog të thjeshtë.
           </p>
         </section>
       </div>

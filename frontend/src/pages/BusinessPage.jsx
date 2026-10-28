@@ -35,6 +35,10 @@ export default function BusinessPage({ slug, navigate }) {
       })
     return () => controller.abort()
   }, [slug, attempt])
+  const hasContactActions = business && (
+    phoneUrl(business.phone) || directionsUrl(business) ||
+    emailUrl(business.email) || safeWebsite(business.website)
+  )
 
   return (
     <section className="container py-10 sm:py-14">
@@ -83,13 +87,7 @@ export default function BusinessPage({ slug, navigate }) {
                   'Adresa nuk është publikuar.'}
               </span>
             </p>
-            {business.is_demo && (
-              <p className="mt-6 max-w-3xl rounded-xl border border-amber/40 bg-amber/15 p-4 text-sm leading-6">
-                Të dhëna demonstrimi. Kontaktet, imazhet dhe koordinatat janë të
-                simuluara, jo informacion i verifikuar.
-              </p>
-            )}
-            <div className="mt-7 flex flex-wrap gap-3 border-t border-line pt-6">
+            {hasContactActions && <div className="mt-7 flex flex-wrap gap-3 border-t border-line pt-6">
               {phoneUrl(business.phone) && (
                 <a className="button-primary" href={phoneUrl(business.phone)}>
                   Telefono
@@ -120,7 +118,7 @@ export default function BusinessPage({ slug, navigate }) {
                   Website
                 </a>
               )}
-            </div>
+            </div>}
             <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-2 break-words text-sm text-muted">
               {business.phone && (
                 <div>
@@ -178,8 +176,8 @@ export default function BusinessPage({ slug, navigate }) {
                 )}
               </section>
               <section className="rounded-2xl border border-line bg-white p-6 sm:p-8">
-                <h2 className="section-title mb-5">Logo dhe fotografi</h2>
-                <div className="grid gap-4 sm:grid-cols-2">
+                <h2 className="section-title mb-5">Fotografi</h2>
+                <div className={`grid gap-4 ${business.images.length > 1 ? 'sm:grid-cols-2' : ''}`}>
                   {business.images.length ? (
                     business.images.map((image) => (
                       <ProfileImage
@@ -244,7 +242,7 @@ function ProfileImage({ image, name }) {
           src={image.path}
           alt={image.alt_text || name}
           loading="lazy"
-          className="h-full w-full object-contain"
+          className="h-full w-full object-cover"
           onError={() => setFailed(true)}
         />
       ) : (

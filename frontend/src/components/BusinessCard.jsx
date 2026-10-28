@@ -3,11 +3,6 @@ import Icon from './Icon'
 export default function BusinessCard({ business, onOpen }) {
   const [failedImage, setFailedImage] = useState(false)
   const image = business.image
-  const genericDemoDescription =
-    business.is_demo &&
-    business.description?.startsWith(
-      'Biznes demonstrues për testimin e katalogut.'
-    )
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_2px_12px_#173f3508] transition-[border-color,box-shadow] hover:border-forest/30 hover:shadow-[0_12px_28px_#173f3514] focus-within:border-forest/50">
       <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden border-b border-line bg-[#eaf0e6]">
@@ -27,11 +22,6 @@ export default function BusinessCard({ business, onOpen }) {
             <span className="text-xs font-medium">Pa fotografi</span>
           </div>
         )}
-        {business.is_demo && (
-          <span className="absolute top-3 left-3 rounded-full border border-white/70 bg-paper px-3 py-1 text-[10px] font-semibold uppercase tracking-widest">
-            Demo
-          </span>
-        )}
       </div>
       <div className="flex flex-1 flex-col p-5 sm:p-6">
         <p className="text-xs font-semibold uppercase tracking-[0.13em] text-forest">
@@ -50,11 +40,9 @@ export default function BusinessCard({ business, onOpen }) {
             </span>
           </p>
         )}
-        {!genericDemoDescription && (
-          <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted">
-            {business.description || 'Përshkrimi nuk është publikuar.'}
-          </p>
-        )}
+        <p className="mt-4 line-clamp-2 text-sm leading-6 text-muted">
+          {business.description || 'Përshkrimi nuk është publikuar.'}
+        </p>
         <div className="mt-auto pt-5">
           <button
             type="button"
