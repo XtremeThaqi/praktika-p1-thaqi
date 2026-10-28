@@ -64,26 +64,26 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
     'has_hours',
   ].filter((name) => params.get(name) && params.get(name) !== '0').length
   return (
-    <section className="container py-12 sm:py-16">
+    <section className="container py-10 sm:py-14">
       <p className="eyebrow">Katalogu lokal</p>
       <h1 className="page-title mt-4">Gjej atë që të duhet.</h1>
-      <p className="mt-5 max-w-xl leading-7 text-muted">
+      <p className="mt-4 max-w-2xl leading-7 text-muted">
         Eksploro bizneset dhe shërbimet e komunës së Lipjanit. Të dhënat e
         shënuara “Demo” janë demonstrim.
       </p>
-      <div className="mt-8 max-w-3xl">
+      <div className="mt-7 max-w-3xl">
         <SearchForm
           value={params.get('q') || ''}
           onSearch={(q) => changeFilter('q', q)}
         />
       </div>
-      <div className="mt-10 grid items-start gap-8 lg:grid-cols-[240px_1fr]">
+      <div className="mt-9 grid min-w-0 items-start gap-6 lg:grid-cols-[minmax(0,16rem)_minmax(0,1fr)] lg:gap-8">
         <div className="contents lg:block lg:space-y-6">
           <aside
-            className="rounded-2xl border border-line bg-white p-5"
+            className="rounded-2xl border border-line bg-white p-4 sm:p-5"
             aria-label="Filtrat e katalogut"
           >
-            <h2 className="font-semibold">
+            <h2 className="text-lg font-semibold text-forest">
               Filtrat{' '}
               {activeFilters > 0 && (
                 <span className="text-muted">({activeFilters})</span>
@@ -91,7 +91,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
             </h2>
             <button
               type="button"
-              className="button-secondary mt-4 w-full lg:hidden"
+              className="button-secondary mt-3 w-full lg:hidden"
               aria-expanded={filtersOpen}
               aria-controls="directory-filters"
               onClick={() => setFiltersOpen(!filtersOpen)}
@@ -100,7 +100,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
             </button>
             <div
               id="directory-filters"
-              className={`${filtersOpen ? 'block' : 'hidden'} mt-5 lg:block`}
+              className={`${filtersOpen ? 'block' : 'hidden'} mt-5 border-t border-line pt-5 lg:mt-4 lg:block lg:border-0 lg:pt-0`}
             >
               {!options && !optionsError && (
                 <p role="status" className="text-sm">
@@ -188,19 +188,19 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
           </div>
         </div>
         <div className="order-2 min-w-0 lg:order-none">
-          <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-            <p role="status" className="text-sm text-muted">
+          <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
+            <p role="status" className="font-semibold text-forest">
               {result
                 ? `${result.meta.total} ${result.meta.total === 1 ? 'biznes i gjetur' : 'biznese të gjetura'}`
                 : error
                   ? 'Kërkimi nuk u përfundua'
                   : 'Duke ngarkuar bizneset…'}
             </p>
-            <label className="flex items-center gap-3 text-sm" htmlFor="sort">
+            <label className="flex items-center gap-3 text-sm font-medium" htmlFor="sort">
               Renditja
               <select
                 id="sort"
-                className="field w-auto text-sm"
+                className="field w-auto max-w-full text-sm"
                 value={params.get('sort') || 'name_asc'}
                 onChange={(event) => changeFilter('sort', event.target.value)}
               >
@@ -218,9 +218,14 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
               {[1, 2, 3].map((item) => (
                 <div
                   key={item}
-                  className="h-96 rounded-2xl border border-line bg-white"
+                  className="overflow-hidden rounded-2xl border border-line bg-white"
                 >
-                  <div className="h-40 rounded-t-2xl bg-[#e7ecdf]" />
+                  <div className="aspect-[16/10] bg-[#e7ecdf]" />
+                  <div className="space-y-3 p-5">
+                    <div className="h-3 w-20 rounded bg-[#e7ecdf]" />
+                    <div className="h-6 w-3/4 rounded bg-[#e7ecdf]" />
+                    <div className="h-4 w-1/2 rounded bg-[#e7ecdf]" />
+                  </div>
                 </div>
               ))}
             </div>
@@ -274,15 +279,15 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
                   />
                 ))}
               </div>
-              <BusinessMap
-                businesses={result.data}
-                navigate={navigate}
-                title="Bizneset e kësaj faqeje"
-              />
               <Pagination
                 meta={result.meta}
                 search={search}
                 navigate={navigate}
+              />
+              <BusinessMap
+                businesses={result.data}
+                navigate={navigate}
+                title="Bizneset e kësaj faqeje"
               />
             </>
           )}

@@ -37,11 +37,11 @@ export default function BusinessPage({ slug, navigate }) {
   }, [slug, attempt])
 
   return (
-    <section className="container py-10 sm:py-16">
+    <section className="container py-10 sm:py-14">
       <Link
         href="/bizneset"
         navigate={navigate}
-        className="button-secondary mb-8"
+        className="mb-7 inline-flex min-h-11 items-center gap-2 rounded-lg px-2 text-sm font-semibold text-forest underline-offset-4 hover:underline"
       >
         ← Kthehu te bizneset
       </Link>
@@ -69,25 +69,36 @@ export default function BusinessPage({ slug, navigate }) {
       )}
       {business && (
         <>
-          <header className="rounded-2xl border border-line bg-white p-6 sm:p-10">
-            <p className="eyebrow">
-              {business.category?.name || 'Biznes lokal'} ·{' '}
-              {business.settlement?.name}
+          <header className="rounded-2xl border border-line bg-white p-6 sm:p-9 lg:p-10">
+            <p className="eyebrow">{business.category?.name || 'Biznes lokal'}</p>
+            <h1 className="page-title mt-4 max-w-4xl break-words">{business.name}</h1>
+            <p className="mt-5 flex items-start gap-2 break-words text-sm leading-6 text-muted sm:text-base">
+              <Icon name="pin" className="mt-1 size-5 shrink-0 text-forest" />
+              <span>
+                {[business.settlement?.name, business.address].filter(Boolean).join(' · ') ||
+                  'Adresa nuk është publikuar.'}
+              </span>
             </p>
-            <h1 className="page-title mt-4 break-words">{business.name}</h1>
             {business.is_demo && (
-              <p className="mt-6 rounded-xl bg-amber/20 p-4 text-sm leading-6">
+              <p className="mt-6 max-w-3xl rounded-xl border border-amber/40 bg-amber/15 p-4 text-sm leading-6">
                 Të dhëna demonstrimi. Kontaktet, imazhet dhe koordinatat janë të
                 simuluara, jo informacion i verifikuar.
               </p>
             )}
-            <p className="mt-6 break-words leading-7 text-muted">
-              {business.address || 'Adresa nuk është publikuar.'}
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
+            <div className="mt-7 flex flex-wrap gap-3 border-t border-line pt-6">
               {phoneUrl(business.phone) && (
                 <a className="button-primary" href={phoneUrl(business.phone)}>
                   Telefono
+                </a>
+              )}
+              {directionsUrl(business) && (
+                <a
+                  className="button-secondary"
+                  href={directionsUrl(business)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Shiko udhëzimet
                 </a>
               )}
               {emailUrl(business.email) && (
@@ -106,7 +117,7 @@ export default function BusinessPage({ slug, navigate }) {
                 </a>
               )}
             </div>
-            <dl className="mt-5 space-y-2 break-words text-sm text-muted">
+            <dl className="mt-5 flex flex-wrap gap-x-8 gap-y-2 break-words text-sm text-muted">
               {business.phone && (
                 <div>
                   <dt className="inline font-semibold">Telefon: </dt>
@@ -120,13 +131,13 @@ export default function BusinessPage({ slug, navigate }) {
                 </div>
               )}
             </dl>
-            <div className="mt-4 flex flex-wrap gap-4">
+            <div className="mt-4 flex flex-wrap gap-x-5 gap-y-2">
               {Object.entries(business.social_links || {}).map(
                 ([name, url]) =>
                   safeWebsite(url) && (
                     <a
                       key={name}
-                      className="footer-link break-all text-sm text-forest underline"
+                      className="break-all rounded text-sm font-medium text-forest underline underline-offset-4"
                       href={safeWebsite(url)}
                       target="_blank"
                       rel="noopener noreferrer"
@@ -137,11 +148,11 @@ export default function BusinessPage({ slug, navigate }) {
               )}
             </div>
           </header>
-          <div className="mt-8 grid items-start gap-8 lg:grid-cols-[1.5fr_1fr]">
-            <div className="min-w-0 space-y-8">
+          <div className="mt-7 grid items-start gap-7 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+            <div className="min-w-0 space-y-7">
               <section className="rounded-2xl border border-line bg-white p-6 sm:p-8">
                 <h2 className="section-title">Rreth biznesit</h2>
-                <p className="mt-5 whitespace-pre-line break-words leading-8 text-muted">
+                <p className="mt-5 max-w-prose whitespace-pre-line break-words leading-8 text-muted">
                   {business.description || 'Përshkrimi nuk është publikuar.'}
                 </p>
                 <h2 className="mt-8 text-xl font-semibold">Shërbimet</h2>
@@ -150,7 +161,7 @@ export default function BusinessPage({ slug, navigate }) {
                     {business.services.map((service) => (
                       <li
                         key={service.id}
-                        className="rounded-lg bg-[#eaf0e6] px-4 py-2 text-sm text-forest"
+                        className="break-words rounded-lg border border-forest/10 bg-[#eaf0e6] px-4 py-2 text-sm text-forest"
                       >
                         {service.name}
                       </li>
@@ -162,7 +173,7 @@ export default function BusinessPage({ slug, navigate }) {
                   </p>
                 )}
               </section>
-              <section>
+              <section className="rounded-2xl border border-line bg-white p-6 sm:p-8">
                 <h2 className="section-title mb-5">Logo dhe fotografi</h2>
                 <div className="grid gap-4 sm:grid-cols-2">
                   {business.images.length ? (
@@ -179,7 +190,7 @@ export default function BusinessPage({ slug, navigate }) {
                 </div>
               </section>
             </div>
-            <section className="rounded-2xl border border-line bg-white p-6 sm:p-8">
+            <section className="rounded-2xl border border-line bg-[#f1f3ea] p-6 sm:p-8">
               <h2 className="section-title text-2xl">Orari i punës</h2>
               {business.hours.length ? (
                 <>
@@ -198,8 +209,8 @@ export default function BusinessPage({ slug, navigate }) {
                           key={hour.day_of_week}
                           className="flex flex-wrap justify-between gap-2 py-3 text-sm"
                         >
-                          <dt>{days[hour.day_of_week]}</dt>
-                          <dd>
+                          <dt className="font-medium">{days[hour.day_of_week]}</dt>
+                          <dd className="text-muted">
                             {hour.is_closed
                               ? 'Mbyllur'
                               : `${hour.opens_at?.slice(0, 5)}–${hour.closes_at?.slice(0, 5)}`}
@@ -214,16 +225,6 @@ export default function BusinessPage({ slug, navigate }) {
             </section>
           </div>
           <BusinessMap businesses={[business]} navigate={navigate} />
-          {directionsUrl(business) && (
-            <a
-              className="button-primary mt-5"
-              href={directionsUrl(business)}
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Shiko udhëzimet
-            </a>
-          )}
         </>
       )}
     </section>
@@ -233,7 +234,7 @@ export default function BusinessPage({ slug, navigate }) {
 function ProfileImage({ image, name }) {
   const [failed, setFailed] = useState(false)
   return (
-    <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl border border-line bg-[#eaf0e6]">
+    <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl border border-line bg-[#eaf0e6]">
       {image && !failed ? (
         <img
           src={image.path}
