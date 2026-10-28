@@ -42,17 +42,17 @@ export default function SiteLayout({ children, pathname, navigate }) {
         Kalo te përmbajtja
       </a>
       <header className="border-b border-line bg-paper">
-        <div className="container flex min-h-22 items-center justify-between gap-4">
+        <div className="container flex min-h-20 items-center justify-between gap-4">
           <Link
             href="/"
             navigate={navigate}
-            className="flex items-center gap-3"
+            className="flex min-w-0 items-center gap-3"
             aria-label="Bizneset e Lipjanit — Ballina"
           >
             <span className="flex size-11 shrink-0 items-center justify-center rounded-full bg-forest text-white">
               <Icon name="shop" className="size-6" />
             </span>
-            <span className="text-lg font-semibold leading-tight tracking-tight">
+            <span className="min-w-0 text-lg font-semibold leading-tight tracking-tight">
               Bizneset{' '}
               <span className="block text-sm font-normal tracking-normal text-muted">
                 e Lipjanit
@@ -82,7 +82,7 @@ export default function SiteLayout({ children, pathname, navigate }) {
         {menuOpen && (
           <nav
             id="mobile-navigation"
-            className="container flex flex-col gap-1 border-t border-line py-4 md:hidden"
+            className="container flex flex-col gap-1 border-t border-line py-3 md:hidden"
             aria-label="Navigimi në telefon"
             onKeyDown={(event) => {
               if (event.key === 'Escape') {
@@ -100,7 +100,7 @@ export default function SiteLayout({ children, pathname, navigate }) {
       <main id="main" tabIndex="-1">
         {children}
       </main>
-      <footer className="mt-16 bg-forest text-white sm:mt-24">
+      <footer className="mt-12 bg-forest text-white sm:mt-16">
         <div className="container grid gap-10 py-14 md:grid-cols-[2fr_1fr_1fr]">
           <div>
             <p className="font-display text-3xl">Njih më mirë vendin tënd.</p>
