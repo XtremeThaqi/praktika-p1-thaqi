@@ -27,10 +27,16 @@ class DemoAdvertisementSeeder extends Seeder
                 ->where('is_demo', true)->firstOrFail();
 
             $imagePath = sprintf('/demo/photos/%02d.jpg', $data['business']);
-            $advertisement = Advertisement::firstOrNew([
-                'business_id' => $business->id,
-                'placement' => $data['placement'],
-            ]);
+            $slot = Advertisement::where('business_id', $business->id)
+                ->where('placement', $data['placement']);
+            $advertisement = (clone $slot)->whereIn('image_path', [
+                $imagePath, '/demo/advertisement.svg',
+            ])->first();
+            if (! $advertisement && $slot->exists()) {
+                // A different image belongs to an administrator, not this seeder.
+                continue;
+            }
+            $advertisement ??= new Advertisement;
 
             $advertisement->fill([
                 'business_id' => $business->id,

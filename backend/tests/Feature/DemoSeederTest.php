@@ -6,7 +6,9 @@ use App\Models\Advertisement;
 use App\Models\Business;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class DemoSeederTest extends TestCase
@@ -60,7 +62,6 @@ class DemoSeederTest extends TestCase
         $realBusiness = Business::create(['name' => 'Existing record', 'slug' => 'existing-record']);
         $this->seed();
         $businessIds = Business::orderBy('id')->pluck('id')->all();
-        $advertisementIds = Advertisement::orderBy('id')->pluck('id')->all();
         $counts = [];
         foreach (['categories', 'settlements', 'services', 'business_service', 'business_hours', 'business_images'] as $table) {
             $counts[$table] = DB::table($table)->count();
@@ -75,6 +76,15 @@ class DemoSeederTest extends TestCase
         $anotherAd = Advertisement::where('business_id', Business::where('slug', 'demo-biznes-03')->firstOrFail()->id)
             ->firstOrFail();
         $anotherAd->update(['image_path' => '/storage/advertisements/custom.jpg']);
+        $customImage = Business::where('slug', 'demo-biznes-03')->firstOrFail()->images()->firstOrFail();
+        $customImage->update(['path' => '/storage/businesses/custom.jpg', 'alt_text' => 'Administrator photo']);
+        $customAd = $advertisement->replicate();
+        $customAd->fill([
+            'image_path' => '/storage/advertisements/second-custom.jpg',
+            'destination' => 'https://example.com/custom',
+            'priority' => 99,
+        ])->save();
+        $advertisementIds = Advertisement::orderBy('id')->pluck('id')->all();
 
         $this->seed();
 
@@ -89,7 +99,12 @@ class DemoSeederTest extends TestCase
         $this->assertSame('/demo/photos/02.jpg', $image->fresh()->path);
         $this->assertSame('/demo/photos/02.jpg', $advertisement->fresh()->image_path);
         $this->assertNull($advertisement->fresh()->destination);
-        $this->assertSame('/demo/photos/03.jpg', $anotherAd->fresh()->image_path);
+        $this->assertSame('/storage/advertisements/custom.jpg', $anotherAd->fresh()->image_path);
+        $this->assertSame('/storage/businesses/custom.jpg', $customImage->fresh()->path);
+        $this->assertSame('Administrator photo', $customImage->fresh()->alt_text);
+        $this->assertSame('/storage/advertisements/second-custom.jpg', $customAd->fresh()->image_path);
+        $this->assertSame('https://example.com/custom', $customAd->fresh()->destination);
+        $this->assertSame(99, $customAd->fresh()->priority);
     }
 
     public function test_demo_advertisements_cover_current_future_expired_and_disabled_states(): void
@@ -108,5 +123,52 @@ class DemoSeederTest extends TestCase
             $this->assertNull($advertisement->destination);
             $this->assertFileExists(public_path(ltrim($advertisement->image_path, '/')));
         }
+    }
+
+    public function test_uploaded_images_and_custom_advertisements_survive_reseeding(): void
+    {
+        $this->seed();
+        Storage::fake('public');
+        $admin = User::factory()->create(['is_admin' => true]);
+        $this->actingAs($admin);
+        $png = base64_decode('iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lXcAAAAASUVORK5CYII=');
+
+        $business = Business::where('slug', 'demo-biznes-01')->firstOrFail();
+        $seededImage = $business->images()->firstOrFail();
+        $this->deleteJson("/api/admin/businesses/$business->id/images/$seededImage->id")->assertOk();
+        $this->postJson("/api/admin/businesses/$business->id/images", [
+            'image' => UploadedFile::fake()->createWithContent('custom.png', $png),
+            'kind' => 'gallery', 'alt_text' => 'Fotografi e ngarkuar nga administratori',
+        ])->assertCreated();
+        $uploadedImage = $business->images()->firstOrFail();
+
+        $seededAd = Advertisement::where('business_id', $business->id)->firstOrFail();
+        $this->post("/api/admin/advertisements/$seededAd->id/image", [
+            'image' => UploadedFile::fake()->createWithContent('custom-ad.png', $png),
+        ], ['Accept' => 'application/json'])->assertOk();
+        $uploadedAdPath = $seededAd->fresh()->image_path;
+
+        $otherSeededAd = Advertisement::where('business_id', Business::where('slug', 'demo-biznes-02')->firstOrFail()->id)
+            ->firstOrFail();
+        Storage::disk('public')->put('advertisements/another-custom.png', $png);
+        $customAd = $otherSeededAd->replicate();
+        $customAd->fill([
+            'image_path' => '/storage/advertisements/another-custom.png',
+            'destination' => 'https://example.com/custom',
+            'priority' => 55,
+        ])->save();
+
+        $this->seed();
+
+        $this->assertDatabaseHas('users', ['id' => $admin->id]);
+        $this->assertSame($uploadedImage->path, $uploadedImage->fresh()->path);
+        $this->assertSame('Fotografi e ngarkuar nga administratori', $uploadedImage->fresh()->alt_text);
+        Storage::disk('public')->assertExists(substr($uploadedImage->path, strlen('/storage/')));
+        $this->assertSame($uploadedAdPath, $seededAd->fresh()->image_path);
+        $this->assertSame('/storage/advertisements/another-custom.png', $customAd->fresh()->image_path);
+        $this->assertSame('https://example.com/custom', $customAd->fresh()->destination);
+        $this->assertSame(55, $customAd->fresh()->priority);
+        $this->assertSame(7, Advertisement::count());
+        $this->assertSame(1, $business->images()->count());
     }
 }

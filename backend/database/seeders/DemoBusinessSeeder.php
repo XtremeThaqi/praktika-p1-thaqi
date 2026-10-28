@@ -88,15 +88,26 @@ class DemoBusinessSeeder extends Seeder
                 }
             }
 
-            if ($number <= 26) {
-                $business->images()->updateOrCreate(['sort_order' => 0], [
-                    'path' => sprintf('/demo/photos/%02d.jpg', $number),
-                    'alt_text' => $photos[$number]['alt'].'; fotografi ilustruese.',
-                    'kind' => 'gallery',
-                ]);
-            }
-            // Remove only the previous seeder-owned illustration; keep user-added images.
+            // These paths are reserved for the seeder; uploaded paths live under /storage.
             $business->images()->where('path', '/demo/business-gallery.svg')->delete();
+            if ($number <= 26) {
+                $photoPath = sprintf('/demo/photos/%02d.jpg', $number);
+                $ownedImage = $business->images()->whereIn('path', [$photoPath, '/demo/business-logo.svg'])->first();
+                if ($ownedImage) {
+                    $ownedImage->update([
+                        'path' => $photoPath,
+                        'alt_text' => $photos[$number]['alt'].'; fotografi ilustruese.',
+                        'kind' => 'gallery',
+                    ]);
+                } elseif (! $business->images()->exists()) {
+                    $business->images()->create([
+                        'sort_order' => 0,
+                        'path' => $photoPath,
+                        'alt_text' => $photos[$number]['alt'].'; fotografi ilustruese.',
+                        'kind' => 'gallery',
+                    ]);
+                }
+            }
             $business->images()->where('path', '/demo/business-logo.svg')->delete();
         }
     }
