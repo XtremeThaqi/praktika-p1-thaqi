@@ -52,9 +52,6 @@ export default function HomePage({ navigate, onOpen }) {
               }
             />
           </div>
-          <p className="mt-4 text-xs leading-6 text-muted">
-            Projekt studentor · Katalogu përmban të dhëna demonstrimi.
-          </p>
         </div>
         <div
           className="relative min-w-0 rounded-[1.75rem] border border-forest/10 bg-[#e7ecdf] px-6 pt-7 pb-6 sm:px-9 sm:pt-9"

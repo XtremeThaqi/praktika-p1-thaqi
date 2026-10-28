@@ -100,7 +100,7 @@ export default function BusinessMap({
       <h2 className="section-title text-2xl">{title}</h2>
       <p className="mt-3 text-sm leading-6 text-muted">
         {valid.length} vendndodhje nga {businesses.length} biznese. Koordinatat
-        demo dhe vendndodhjet e paverifikuara nuk janë të konfirmuara.
+        e paverifikuara nuk janë të konfirmuara. Profilet ilustruese pa koordinata nuk shfaqen në hartë.
       </p>
       {!valid.length ? (
         <p className="mt-5 text-muted">

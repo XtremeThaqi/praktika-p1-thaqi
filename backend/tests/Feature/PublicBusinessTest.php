@@ -41,8 +41,8 @@ class PublicBusinessTest extends TestCase
             ->assertJsonCount($business->services()->count(), 'data.services')
             ->assertJsonCount(7, 'data.hours')->assertJsonCount(1, 'data.images');
         $this->assertArrayNotHasKey('status', $response->json('data'));
-        $this->getJson('/api/businesses?q=Dyqani')->assertOk();
-        $list = $this->getJson('/api/businesses')->json('data');
+        $this->getJson('/api/businesses?q=Shporta')->assertOk();
+        $list = $this->getJson('/api/businesses?q=Shporta')->json('data');
         $card = collect($list)->firstWhere('id', $business->id);
         $this->assertLessThan(mb_strlen($description), mb_strlen($card['description']));
     }

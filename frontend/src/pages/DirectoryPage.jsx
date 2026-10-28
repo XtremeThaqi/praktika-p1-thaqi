@@ -68,8 +68,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
       <p className="eyebrow">Katalogu lokal</p>
       <h1 className="page-title mt-4">Gjej atë që të duhet.</h1>
       <p className="mt-4 max-w-2xl leading-7 text-muted">
-        Eksploro bizneset dhe shërbimet e komunës së Lipjanit. Të dhënat e
-        shënuara “Demo” janë demonstrim.
+        Eksploro profilet sipas kategorisë, vendbanimit dhe shërbimeve që të interesojnë.
       </p>
       <div className="mt-7 max-w-3xl">
         <SearchForm

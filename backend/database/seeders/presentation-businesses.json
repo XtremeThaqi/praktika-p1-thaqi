@@ -1,0 +1,152 @@
+[
+  {
+    "number": 1,
+    "name": "Kafja Te Bliri",
+    "description": "Kafene e lagjes me kafe të përgatitur në vend dhe hapësirë të qetë për biseda. Në mëngjes ofrohen pije të ngrohta dhe ushqime të lehta për t’u marrë me vete."
+  },
+  {
+    "number": 2,
+    "name": "Shporta e Lagjes",
+    "description": "Dyqan ushqimor me produkte të përditshme, fruta dhe artikuj për shtëpinë. Përzgjedhja ndryshon sipas sezonit dhe synon blerjet e shpejta të familjeve."
+  },
+  {
+    "number": 3,
+    "name": "Punëtoria Rrota",
+    "description": "Punëtori për kontrollin dhe mirëmbajtjen e zakonshme të automjeteve. Shërbimet përfshijnë kujdesin për gomat dhe ndërhyrje të planifikuara sipas nevojës."
+  },
+  {
+    "number": 4,
+    "name": "Këndi Dentar",
+    "description": "Hapësirë e menduar për shërbime të zakonshme të kujdesit oral dhe informacion mbi higjienën dentare. Vizitat organizohen me rezervim dhe hollësitë e shërbimit sqarohen përpara takimit."
+  },
+  {
+    "number": 5,
+    "name": "Pika Mobile",
+    "description": "Dyqan aksesorësh për telefona dhe pajisje të vogla elektronike. Klientët mund të kërkojnë ndihmë për përzgjedhjen e mbrojtëseve, kabllove dhe pajisjeve të përditshme."
+  },
+  {
+    "number": 6,
+    "name": "Studio Fleta",
+    "description": "Studio kreative për materiale vizuale dhe përgatitje dokumentesh për biznese të vogla. Projektet planifikohen sipas kërkesës, nga ideja fillestare deri te skedari për përdorim."
+  },
+  {
+    "number": 7,
+    "name": "Furra Pranvera",
+    "description": "Furrë buke me produkte të pjekura gjatë ditës, simite dhe ëmbëlsira të thjeshta. Oferta ndryshon sipas orarit të pjekjes dhe stinës."
+  },
+  {
+    "number": 8,
+    "name": "Veshje Mimoza",
+    "description": "Butik me veshje të përditshme dhe aksesorë për kombinime të thjeshta. Koleksioni përditësohet rregullisht me modele dhe ngjyra të sezonit."
+  },
+  {
+    "number": 9,
+    "name": "Goma dhe Kujdesi",
+    "description": "Shërbim i përqendruar te gomat, kontrolli i tyre dhe përgatitja e automjetit për stinën. Punët kryhen me termine për ta bërë pritjen më të lehtë."
+  },
+  {
+    "number": 10,
+    "name": "Bima dhe Shëndeti",
+    "description": "Dyqan me produkte të kujdesit personal dhe artikuj të përditshëm për mirëqenie. Stafi ndihmon në orientimin mes produkteve pa zëvendësuar këshillën mjekësore."
+  },
+  {
+    "number": 11,
+    "name": "Tekno Këndi",
+    "description": "Hapësirë për pajisje elektronike, kabllo dhe aksesorë kompjuterikë. Ofron ndihmë praktike për zgjedhjen dhe instalimin fillestar të pajisjeve."
+  },
+  {
+    "number": 12,
+    "name": "Zyra e Numrave",
+    "description": "Shërbime administrative për organizimin e dokumenteve dhe evidencave të bizneseve të vogla. Takimet caktohen paraprakisht dhe nevojat përcaktohen rast pas rasti."
+  },
+  {
+    "number": 13,
+    "name": "Oborri i Kafes",
+    "description": "Kafene me hapësirë për pushim të shkurtër dhe takime të përditshme. Menyja përqendrohet te kafja, pijet freskuese dhe ushqimet e lehta."
+  },
+  {
+    "number": 14,
+    "name": "Pëlhura",
+    "description": "Dyqan veshjesh me artikuj bazë dhe pjesë sezonale për përdorim të përditshëm. Përzgjedhja synon komoditetin dhe kombinime të lehta."
+  },
+  {
+    "number": 15,
+    "name": "Servisi Boshti",
+    "description": "Punëtori për kujdesin rutinë të automjeteve dhe kontrolle para udhëtimit. Terminet ndihmojnë në planifikimin e punëve dhe marrjen e automjetit në kohë."
+  },
+  {
+    "number": 16,
+    "name": "Optika Drita",
+    "description": "Dyqan syzesh dhe aksesorësh për mirëmbajtjen e tyre. Vizitorët mund të krahasojnë korniza dhe të marrin informacion për porositë e mundshme."
+  },
+  {
+    "number": 17,
+    "name": "Byte Lokale",
+    "description": "Dyqan me pajisje kompjuterike dhe artikuj ndihmës për punë e mësim. Ndihma për instalim dhe konfigurim ofrohet sipas llojit të pajisjes."
+  },
+  {
+    "number": 18,
+    "name": "Forma Studio",
+    "description": "Studio për dizajn grafik, materiale prezantimi dhe përgatitje për shtyp. Çdo porosi nis me një bisedë për përmbajtjen, afatin dhe formatin e dëshiruar."
+  },
+  {
+    "number": 19,
+    "name": "Sofra e Vogël",
+    "description": "Restorant me gatime të përditshme dhe tavolina për drekë në shoqëri. Menuja ndryshon sipas përbërësve të ditës dhe përfshin zgjedhje për t’u marrë me vete."
+  },
+  {
+    "number": 20,
+    "name": "Letra dhe Ngjyra",
+    "description": "Dyqan me fletore, mjete shkrimi dhe materiale për punë krijuese. Artikujt janë të përshtatshëm për shkollë, zyrë dhe projekte personale."
+  },
+  {
+    "number": 21,
+    "name": "Auto Pastër",
+    "description": "Hapësirë për pastrimin dhe kujdesin e zakonshëm të automjeteve. Shërbimet planifikohen sipas madhësisë së automjetit dhe kërkesës së klientit."
+  },
+  {
+    "number": 22,
+    "name": "Hapësira Qetësi",
+    "description": "Hapësirë për relaksim dhe kujdes të përditshëm për mirëqenien. Vizitat planifikohen paraprakisht, ndërsa shërbimet dhe kohëzgjatja e tyre sqarohen para rezervimit."
+  },
+  {
+    "number": 23,
+    "name": "Qarku Elektronik",
+    "description": "Punëtori për kontrollin e pajisjeve elektronike të përditshme dhe aksesorëve. Klientët marrin shpjegim për problemin dhe mundësitë e riparimit para porosisë."
+  },
+  {
+    "number": 24,
+    "name": "Rruga e Dokumentit",
+    "description": "Shërbime zyre për renditjen, digjitalizimin dhe përgatitjen e materialeve administrative. Ofron ndihmë praktike për detyra të zakonshme, me porosi të planifikuara."
+  },
+  {
+    "number": 25,
+    "name": "Brumi i Mëngjesit",
+    "description": "Furrë me bukë të freskët, pjekje të vogla dhe shije të thjeshta për mëngjes. Produktet përgatiten në sasi të ndryshme gjatë ditës."
+  },
+  {
+    "number": 26,
+    "name": "Galeria e Veshjes",
+    "description": "Dyqan me veshje dhe aksesorë të zgjedhur për stinë të ndryshme. Hapësira lejon krahasimin e modeleve dhe zgjedhjen e madhësisë së përshtatshme."
+  },
+  {
+    "number": 27,
+    "name": "Kafja e Oborrit",
+    "description": "Koncept kafeneje në përgatitje, me fokus te pijet e ngrohta dhe një hapësirë e qetë për vizitorët."
+  },
+  {
+    "number": 28,
+    "name": "Tregu i Vogël",
+    "description": null
+  },
+  {
+    "number": 29,
+    "name": "Pikë Servisi",
+    "description": "Koncept i arkivuar për shërbime të mirëmbajtjes së automjeteve."
+  },
+  {
+    "number": 30,
+    "name": "Këndi i Kujdesit",
+    "description": "Koncept i arkivuar për produkte të kujdesit personal."
+  }
+]

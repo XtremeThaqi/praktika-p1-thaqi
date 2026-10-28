@@ -63,24 +63,18 @@ export default function Advertisement({ placement, onOpen }) {
       className="rounded-2xl border border-[#d6c6a3] bg-[#f2ead9] p-5 sm:p-6"
     >
       <p className="eyebrow text-[#765016]">
-        Reklamë {advertisement.business.is_demo && '· Demonstrim'}
+        Reklamë
       </p>
       {!imageFailed && (
         <img
           src={advertisement.image_path}
           alt={advertisement.alt_text || 'Reklamë e biznesit'}
-          className="mt-4 max-h-44 w-full rounded-lg object-contain"
+          className="mt-4 aspect-[16/7] w-full rounded-lg object-cover"
           loading="lazy"
           onError={() => setImageFailed(true)}
         />
       )}
       <p className="mt-4 font-semibold">{advertisement.business.name}</p>
-      {advertisement.business.is_demo && (
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Hapësirë reklamuese me të dhëna të simuluara. Nuk është rekomandim i
-          platformës.
-        </p>
-      )}
       <div className="mt-4">
         {advertisement.destination?.startsWith('/bizneset/') ? (
           <button className="button-secondary" onClick={() => onOpen(advertisement.business.slug)}>
@@ -91,7 +85,7 @@ export default function Advertisement({ placement, onOpen }) {
             className="button-secondary"
             onClick={() => onOpen(advertisement.business.slug)}
           >
-            Shiko biznesin demo <Icon />
+            Shiko profilin e biznesit <Icon />
           </button>
         ) : (
           destination && (

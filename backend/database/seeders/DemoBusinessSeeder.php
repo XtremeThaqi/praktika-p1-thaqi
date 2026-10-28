@@ -18,19 +18,24 @@ class DemoBusinessSeeder extends Seeder
         $settlements = Settlement::whereIn('slug', ['lipjan', 'janjeve', 'magure', 'sllovi'])
             ->orderBy('id')->get();
         $services = Service::pluck('id', 'slug');
+        $profiles = collect(json_decode(file_get_contents(__DIR__.'/presentation-businesses.json'), true, flags: JSON_THROW_ON_ERROR))
+            ->keyBy('number');
+        $photos = collect(json_decode(file_get_contents(__DIR__.'/presentation-photos.json'), true, flags: JSON_THROW_ON_ERROR))
+            ->keyBy('number');
         $businessTypes = [
-            ['category' => 'gastronomi', 'name' => 'Kuzhina', 'services' => ['dergesa', 'merr-me-vete']],
-            ['category' => 'tregti', 'name' => 'Dyqani', 'services' => ['dergesa', 'marrje-ne-dyqan']],
-            ['category' => 'automjete', 'name' => 'Autoservisi', 'services' => ['riparime', 'rezervime']],
-            ['category' => 'shendetesi', 'name' => 'Ordinanca', 'services' => ['konsultime', 'rezervime']],
-            ['category' => 'teknologji', 'name' => 'Teknika', 'services' => ['instalim', 'riparime']],
-            ['category' => 'sherbime-profesionale', 'name' => 'Studio', 'services' => ['konsultime', 'porosi-te-vecanta']],
+            ['category' => 'gastronomi', 'services' => ['dergesa', 'merr-me-vete']],
+            ['category' => 'tregti', 'services' => ['dergesa', 'marrje-ne-dyqan']],
+            ['category' => 'automjete', 'services' => ['riparime', 'rezervime']],
+            ['category' => 'shendetesi', 'services' => ['konsultime', 'rezervime']],
+            ['category' => 'teknologji', 'services' => ['instalim', 'riparime']],
+            ['category' => 'sherbime-profesionale', 'services' => ['konsultime', 'porosi-te-vecanta']],
         ];
 
         for ($number = 1; $number <= 30; $number++) {
             $type = $businessTypes[($number - 1) % count($businessTypes)];
             $settlement = $settlements[($number - 1) % $settlements->count()];
             $slug = sprintf('demo-biznes-%02d', $number);
+            $profile = $profiles[$number];
             $status = 'published';
 
             if ($number === 27 || $number === 28) {
@@ -40,18 +45,17 @@ class DemoBusinessSeeder extends Seeder
             }
 
             $business = Business::updateOrCreate(['slug' => $slug, 'is_demo' => true], [
-                'name' => sprintf('%s %02d (Demo)', $type['name'], $number),
-                'description' => 'Biznes demonstrues për testimin e katalogut. Të dhënat, kontaktet dhe koordinatat janë të simuluara, jo informacion i verifikuar. Kategoria: '.$categories[$type['category']]->name.'.',
+                'name' => $profile['name'],
+                'description' => $profile['description'],
                 'category_id' => $categories[$type['category']]->id,
                 'settlement_id' => $settlement->id,
-                'address' => 'Adresë demonstrimi '.$number.', '.$settlement->name.' (jo adresë reale)',
-                'phone' => sprintf('+383 00 000 %03d', $number),
-                'email' => $number % 2 === 0 ? $slug.'@example.com' : null,
-                'website' => $number % 3 === 0 ? 'https://'.$slug.'.example.com' : null,
-                'social_links' => $number % 4 === 0
-                    ? ['instagram' => 'https://social.example.com/'.$slug] : null,
-                'latitude' => 42.5000000 + $number * 0.0003,
-                'longitude' => 21.1100000 + $number * 0.0003,
+                'address' => null,
+                'phone' => null,
+                'email' => null,
+                'website' => null,
+                'social_links' => null,
+                'latitude' => null,
+                'longitude' => null,
                 'location_verified' => false,
                 'status' => $status,
                 'is_featured' => $number <= 6,
@@ -84,20 +88,27 @@ class DemoBusinessSeeder extends Seeder
                 }
             }
 
-            if ($number % 2 === 0) {
-                $business->images()->updateOrCreate(['sort_order' => 0], [
-                    'path' => '/demo/business-logo.svg',
-                    'alt_text' => 'Logo demonstrues, jo logo e një biznesi real.',
-                    'kind' => 'logo',
-                ]);
+            // These paths are reserved for the seeder; uploaded paths live under /storage.
+            $business->images()->where('path', '/demo/business-gallery.svg')->delete();
+            if ($number <= 26) {
+                $photoPath = sprintf('/demo/photos/%02d.jpg', $number);
+                $ownedImage = $business->images()->whereIn('path', [$photoPath, '/demo/business-logo.svg'])->first();
+                if ($ownedImage) {
+                    $ownedImage->update([
+                        'path' => $photoPath,
+                        'alt_text' => $photos[$number]['alt'].'; fotografi ilustruese.',
+                        'kind' => 'gallery',
+                    ]);
+                } elseif (! $business->images()->exists()) {
+                    $business->images()->create([
+                        'sort_order' => 0,
+                        'path' => $photoPath,
+                        'alt_text' => $photos[$number]['alt'].'; fotografi ilustruese.',
+                        'kind' => 'gallery',
+                    ]);
+                }
             }
-            if ($number % 5 === 0) {
-                $business->images()->updateOrCreate(['sort_order' => 1], [
-                    'path' => '/demo/business-gallery.svg',
-                    'alt_text' => 'Ilustrim demonstrues, jo fotografi e një biznesi real.',
-                    'kind' => 'gallery',
-                ]);
-            }
+            $business->images()->where('path', '/demo/business-logo.svg')->delete();
         }
     }
 }

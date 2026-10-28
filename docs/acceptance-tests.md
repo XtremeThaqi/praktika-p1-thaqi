@@ -9,7 +9,7 @@ Statuses below reflect the recorded runtime evidence. Source inspection is not a
 | T-03 | Website filter | Excludes missing/empty website values | Passed, 22 Oct 2026 |
 | T-04 | Next page | Stable sort, retained filters, correct total and no duplicated records | Passed, 22 Oct 2026 |
 | T-05 | Reload filtered URL | Same selections, count and results with unchanged data | Passed, 22 Oct 2026 |
-| T-06 | Open profile | Name/contact/address/pin belong to same record; directions and telephone work | Pending |
+| T-06 | Open profile | Name/contact/address/pin belong to same record; directions and telephone work | Pending: isolated fixture covers stored values and generated links; public contact and device actions remain unverified |
 | T-07 | No search matches | Clear explanation and working filter reset | Passed, 22 Oct 2026 |
 | T-08 | Admin creates/publishes | Persisted record appears in list, search and direct profile | Passed, 25 Oct 2026 |
 | T-09 | Admin changes phone | Updated value appears publicly after reload | Passed, 25 Oct 2026 |
@@ -146,3 +146,11 @@ Maps use Leaflet 1.9.4 directly and standard OpenStreetMap raster tiles, with at
 - Through the local Vite proxy, `GET /sanctum/csrf-cookie` returned 204. Login without the CSRF header returned 419 and did not grant dashboard access. Wrong credentials returned 422; valid administrator credentials returned 200; `/api/admin/me` and `/api/admin/dashboard` returned 200 with persisted counts. The local dashboard then showed 26 published, 2 draft, 2 archived businesses and 4 eligible advertisements; the last number reflects the live time window and can change. After login, the CSRF cookie rotated; logout with the renewed token returned 200 and the next dashboard request returned 401. The public business endpoint remained available.
 - Frontend unit tests passed for CSRF initialization, credentialed requests, safe failures and reading the renewed CSRF cookie for logout. The frontend production build passed. React source and Tailwind classes were checked, but login/dashboard rendering, keyboard use, Back behavior, console output and layout at 320, 375, 390, 768, 1024 and 1440 pixels could not be observed: the browser tool denied access to the local tab under its URL policy. These browser checks remain **unverified**, not passed.
 - T-12 stays pending because Day 6 has no protected administrative write action. Its complete database-unchanged acceptance test belongs with the first admin CRUD endpoint. Actual MySQL 8 and physical-device testing remain outstanding.
+
+## PR #12 pre-merge correction — 28 October 2026
+
+The presentation seed retains 30 fictional records (26 published) with blank contact, exact address and coordinates. No real Lipjan business was added because a public source confirming identity, current contact details and exact entrance coordinates together was not established. The public directory therefore has zero seed-derived map markers, telephone, email, directions or website actions, and `has_website=1` has zero seed-derived matches. This is intentional; no unverified location is marked verified.
+
+`PresentationAcceptanceTest` creates one extra record only inside the isolated test database using the administrator API, then publishes it with every required field. Its clearly test-only address, example `+383 00 000 000` telephone value, reserved `example.com` domain and unverified coordinates exercise same-record public API fields and the website filter. Frontend unit tests cover phone, email and directions URL generation and invalid-coordinate suppression. No fixture is copied to the normal development seed or production data.
+
+T-06 remains pending for an end-to-end public record with genuinely confirmed contact and entrance coordinates, a map popup and directions on the live catalogue, and actual telephone/email handler checks on a suitable device. The isolated fixture demonstrates code paths but does not verify a real call, email, navigation to a real storefront or external map tile availability.

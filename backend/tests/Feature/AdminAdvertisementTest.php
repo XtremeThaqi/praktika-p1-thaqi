@@ -51,7 +51,7 @@ class AdminAdvertisementTest extends TestCase
         $this->admin();
         Storage::fake('public');
         $business = Business::where('slug', 'demo-biznes-02')->firstOrFail();
-        $this->getJson('/api/admin/advertisements?q=Dyqani&placement=home_banner&status=active_now')
+        $this->getJson('/api/admin/advertisements?q=Shporta&placement=home_banner&status=active_now')
             ->assertOk()->assertJsonPath('total', 1)->assertJsonPath('data.0.business.id', $business->id);
 
         $created = $this->post('/api/admin/advertisements', $this->fields($business) + ['image' => $this->image()],
@@ -119,7 +119,7 @@ class AdminAdvertisementTest extends TestCase
         $this->post("/api/admin/advertisements/$ad->id/image", ['image' => $this->image()],
             ['Accept' => 'application/json'])->assertOk();
         $firstPath = $ad->fresh()->image_path;
-        $this->assertSame('/demo/advertisement.svg', $ad->getOriginal('image_path'));
+        $this->assertSame('/demo/photos/01.jpg', $ad->getOriginal('image_path'));
         $this->post("/api/admin/advertisements/$ad->id/image", ['image' => $this->image()],
             ['Accept' => 'application/json'])->assertOk();
         $secondPath = $ad->fresh()->image_path;
