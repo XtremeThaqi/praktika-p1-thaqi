@@ -7,8 +7,8 @@ export default function ContactPage({ navigate }) {
         Një katalog më i dobishëm, së bashku.
       </h1>
       <p className="mt-5 max-w-2xl text-base leading-8 text-muted sm:text-lg">
-        Për shtimin e një biznesi, korrigjimin e të dhënave ose reklamimin,
-        kontakti i administratorit do të publikohet këtu pasi të konfirmohet.
+        Kjo faqe mbulon pyetjet rreth katalogut, korrigjimin e të dhënave dhe
+        kërkesat për reklamim.
       </p>
       <div className="mt-9 grid max-w-5xl gap-5 md:grid-cols-2">
         <section className="rounded-2xl border border-line bg-white p-6 sm:p-8">

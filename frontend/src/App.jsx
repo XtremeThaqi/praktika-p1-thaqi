@@ -37,10 +37,7 @@ export default function App() {
     })
   }, [location.pathname])
   useEffect(() => {
-    const restore = () => {
-      setLocation(currentLocation())
-      window.requestAnimationFrame(() => window.scrollTo(0, 0))
-    }
+    const restore = () => setLocation(currentLocation())
     window.addEventListener('popstate', restore)
     return () => window.removeEventListener('popstate', restore)
   }, [])

@@ -3,8 +3,11 @@ import Icon from './Icon'
 export default function BusinessCard({ business, onOpen }) {
   const [failedImage, setFailedImage] = useState(false)
   const image = business.image
-  const genericDemoDescription = business.is_demo &&
-    business.description?.startsWith('Biznes demonstrues për testimin e katalogut.')
+  const genericDemoDescription =
+    business.is_demo &&
+    business.description?.startsWith(
+      'Biznes demonstrues për testimin e katalogut.'
+    )
   return (
     <article className="group flex h-full min-w-0 flex-col overflow-hidden rounded-2xl border border-line bg-white shadow-[0_2px_12px_#173f3508] transition-[border-color,box-shadow] hover:border-forest/30 hover:shadow-[0_12px_28px_#173f3514] focus-within:border-forest/50">
       <div className="relative flex aspect-[16/10] items-center justify-center overflow-hidden border-b border-line bg-[#eaf0e6]">
@@ -41,7 +44,9 @@ export default function BusinessCard({ business, onOpen }) {
           <p className="mt-4 flex items-start gap-2 text-sm leading-6 text-muted">
             <Icon name="pin" className="mt-1 size-4 shrink-0 text-forest" />
             <span className="line-clamp-2">
-              {[business.settlement?.name, business.address].filter(Boolean).join(' · ')}
+              {[business.settlement?.name, business.address]
+                .filter(Boolean)
+                .join(' · ')}
             </span>
           </p>
         )}

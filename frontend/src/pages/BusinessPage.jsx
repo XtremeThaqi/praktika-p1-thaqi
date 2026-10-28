@@ -71,11 +71,15 @@ export default function BusinessPage({ slug, navigate }) {
         <>
           <header className="rounded-2xl border border-line bg-white p-6 sm:p-9 lg:p-10">
             <p className="eyebrow">{business.category?.name || 'Biznes lokal'}</p>
-            <h1 className="page-title mt-4 max-w-4xl break-words">{business.name}</h1>
+            <h1 className="page-title mt-4 max-w-4xl break-words">
+              {business.name}
+            </h1>
             <p className="mt-5 flex items-start gap-2 break-words text-sm leading-6 text-muted sm:text-base">
               <Icon name="pin" className="mt-1 size-5 shrink-0 text-forest" />
               <span>
-                {[business.settlement?.name, business.address].filter(Boolean).join(' · ') ||
+                {[business.settlement?.name, business.address]
+                  .filter(Boolean)
+                  .join(' · ') ||
                   'Adresa nuk është publikuar.'}
               </span>
             </p>

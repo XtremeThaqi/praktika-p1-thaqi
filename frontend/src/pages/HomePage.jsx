@@ -177,8 +177,7 @@ export default function HomePage({ navigate, onOpen }) {
             <p className="eyebrow">Nga katalogu</p>
             <h2 className="section-title mt-3">Njih bizneset e zonës</h2>
             <p className="mt-3 text-muted">
-              Një përzgjedhje e zakonshme nga bizneset e publikuara, me të dhëna
-              demo.
+              Një përzgjedhje nga bizneset e publikuara në katalog.
             </p>
           </div>
           <Link
@@ -189,7 +188,33 @@ export default function HomePage({ navigate, onOpen }) {
             Të gjitha bizneset <Icon />
           </Link>
         </div>
-        {data && (
+        {!data && !error && (
+          <div
+            className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3"
+            aria-hidden="true"
+          >
+            {[1, 2, 3].map((item) => (
+              <div
+                key={item}
+                className="overflow-hidden rounded-2xl border border-line bg-white"
+              >
+                <div className="aspect-[16/10] bg-[#e7ecdf]" />
+                <div className="space-y-3 p-5">
+                  <div className="h-3 w-20 rounded bg-[#e7ecdf]" />
+                  <div className="h-6 w-3/4 rounded bg-[#e7ecdf]" />
+                  <div className="h-4 w-1/2 rounded bg-[#e7ecdf]" />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        {error && !data && (
+          <p className="mt-8 rounded-2xl border border-line bg-white p-7 text-muted">
+            Bizneset e përzgjedhura nuk u ngarkuan. Provo përsëri te seksioni i
+            kategorive.
+          </p>
+        )}
+        {data && data.businesses.length > 0 && (
           <div className="mt-8 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {data.businesses.map((business) => (
               <BusinessCard

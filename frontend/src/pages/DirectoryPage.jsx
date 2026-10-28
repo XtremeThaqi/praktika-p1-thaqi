@@ -188,6 +188,7 @@ export default function DirectoryPage({ onOpen, search, navigate }) {
           </div>
         </div>
         <div className="order-2 min-w-0 lg:order-none">
+          <h2 className="sr-only">Rezultatet e kërkimit</h2>
           <div className="mb-5 flex flex-wrap items-center justify-between gap-4 border-b border-line pb-5">
             <p role="status" className="font-semibold text-forest">
               {result
