@@ -65,7 +65,7 @@ Seeders mund të ekzekutohen përsëri pa dyfishuar rekordet ose ndryshuar ID-t�
 
 Profilet e seeder-it janë fiktive dhe mbajnë `is_demo=true` për dallim administrativ. Emrat dhe përshkrimet nuk identifikojnë biznese të regjistruara. Numrat e telefonit, adresat e sakta, email-et, faqet dhe koordinatat lihen bosh që të mos drejtojnë vizitorët te persona ose hyrje të paqena; `location_verified=false`. Për këtë arsye profilet ilustruese nuk kanë pin ose udhëzime. Sjellja e telefonit, email-it, website-it dhe hartës testohet me fixtures të kontrolluara. Orari dhe shërbimet e profileve janë gjithashtu ilustruese. Fotografitë tregojnë llojin e aktivitetit dhe nuk paraqesin ambientin e biznesit të emërtuar. Burimet, autorët dhe licenca janë në `backend/database/seeders/presentation-photos.json`; skedarët lokalë janë në `backend/public/demo/photos/`.
 
-`PresentationAcceptanceTest` krijon një rekord të veçuar vetëm në bazën e testimit për të ushtruar publikimin, kontaktet, filtrin e website-it dhe koordinatat e së njëjtës faqe. Numri shembull `+383 00 000 000`, domeni i rezervuar `example.com` dhe adresa e shënuar si test nuk përdoren në katalogun e zhvillimit ose në prodhim; testi nuk kryen telefonatë, email apo hap udhëzimesh. Për një biznes real, publikimi vazhdon të kërkojë kontakt, adresë, koordinata dhe konfirmimin e vendndodhjes. Asnjë biznes real nuk është shtuar pa burime që konfirmojnë së bashku identitetin, kontaktin dhe vendndodhjen.
+`PresentationAcceptanceTest` krijon një rekord të veçuar vetëm në bazën e testimit për të ushtruar publikimin, kontaktet, filtrin e website-it dhe koordinatat e së njëjtës faqe. Numri shembull `+383 00 000 000`, domeni i rezervuar `example.com` dhe adresa e shënuar si test nuk përdoren në katalogun e zhvillimit ose në prodhim; testi nuk kryen telefonatë, email apo hap udhëzimesh. Për një biznes real, publikimi vazhdon të kërkojë kontakt, adresë, koordinata dhe konfirmimin e vendndodhjes. Bizneset e mbështetura me burime publike shtohen veçmas, vetëm me komandën opsionale të dokumentuar më poshtë; seed-i standard mbetet ilustrues.
 
 Kur seeders ekzekutohen sërish, ata ndryshojnë vetëm imazhet me rrugë të rezervuara `/demo/...` dhe reklamat me imazhin përkatës të seeder-it. Imazhet e ngarkuara nën `/storage/...` dhe reklamat me imazhe të personalizuara mbeten të pandryshuara edhe kur ndajnë biznesin dhe vendosjen e reklamës. Nëse një reklamë e seeder-it është personalizuar, seeder-i nuk krijon një kopje të dytë. ID-të e rekordeve ekzistuese ruhen.
 
@@ -84,6 +84,20 @@ npm run dev
 ```
 
 Hapni [frontend-in lokal](http://127.0.0.1:5173). Përdorni vazhdimisht `127.0.0.1` gjatë zhvillimit. Vite mban portën `5173` dhe përcjell `/api`, `/sanctum`, `/demo` dhe `/storage` te Laravel në portën `8000`. Kjo mban kërkesat në të njëjtën origjinë nga këndvështrimi i shfletuesit. Në prodhim këto rrugë duhen përcjellë te Laravel nga web server-i; `vite preview` shërben vetëm skedarët statikë.
+
+## Biznese me vendndodhje nga burime publike (opsionale)
+
+Për demonstrimin e hartës me të dhëna konkrete, seeder-i i veçantë `VerifiedLipjanBusinessesSeeder` shton **Restaurant Mangall**, **Neptun Lipjan** dhe **Ramjani SH.P.K.**, me adresa, kontakte dhe koordinata të dokumentuara. Referencat, saktësia e pin-ave dhe kufizimet e të dhënave janë te [burimet e bizneseve](docs/verified-business-sources.md).
+
+Nga `backend/`, pasi të keni ekzekutuar `php artisan db:seed`:
+
+```powershell
+php artisan db:seed --class=VerifiedLipjanBusinessesSeeder
+```
+
+Ky është një hap i qartë **opsional**, jo pjesë e seeder-it standard. Në një bazë fillimisht të zbrazët, pas të dy komandave ka 33 biznese, prej tyre 29 të publikuara, dhe pesë vendbanime. Mund të kërkoni `Mangall`, `Neptun` ose `Ramjani`, të hapni profilin përkatës dhe të kontrolloni pin-in, popup-in dhe linkun e udhëzimeve. Numri i telefonit është i publikuar nga burimi; mos kryeni thirrje testimi te bizneset pa arsye. Seeder-i nuk mbishkruan editimet e administratorit në rikzekutim.
+
+Profilet ilustruese të mbetura nuk marrin koordinata të shpikura. Një pin i marrë nga burime publike nuk përbën verifikim të pavarur të hyrjes së ndërtesës. Kjo komandë nuk e shënon automatikisht skenarin T-06 si të kaluar: veprimet reale të telefonit, email-it dhe aplikacionit të udhëzimeve duhen provuar në pajisje të përshtatshme.
 
 ## Kontrollet
 
