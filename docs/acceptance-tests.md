@@ -21,6 +21,29 @@ Statuses below reflect the recorded runtime evidence. Source inspection is not a
 
 T-08, T-09 and T-11 combine the persisted Laravel tests with the local browser flow. T-12 includes unauthenticated and non-administrator write rejection, a write rejected after logout, unchanged row counts, and a browser redirect to sign-in.
 
+## Day 12 acceptance review — 29 October 2026
+
+Environment: local React/Vite browser and Laravel API, MariaDB 10.4.32 (`lipjan_directory` read only; disposable browser fixture in `lipjan_directory_test`), PHP 8.2.12 and desktop-browser viewport emulation. The isolated fixture and its uploaded files were removed after the run. “Carried” below means an earlier browser pass remains documented above or below, while Day 12 reran the relevant automated tests; it does not claim that browser action was repeated today. See [the Day 12 QA report](day12-qa-report.md) for commands, counts and limitations.
+
+| ID | Day 12 status | Evidence and limit |
+| --- | --- | --- |
+| T-01 | Passed | Browser search for `Furra`; API mixed-case, padded query returned one published match; MariaDB filter tests passed. |
+| T-02 | Passed | Browser `Furra` + `gastronomi` + `magure` returned the same record after refresh; MariaDB combined-filter tests passed. |
+| T-03 | Passed | Seeded website filter returned zero; an isolated published fixture with a controlled website made the browser filter return exactly one. Fixture removed. |
+| T-04 | Passed | Browser navigated to page two and Back; API returned 12, 12 and two records over three pages with total 26; stable pagination tests passed. |
+| T-05 | Passed | Browser reload retained search, category, settlement and the matching result. |
+| T-06 | Pending | Isolated admin-created fixture, public card/profile, phone/email links, map marker, popup profile link and directions coordinates matched. A telephone call, email handler or external directions application was not launched; no verified real-business contact/location was available. |
+| T-07 | Passed | Website-only zero-result state explained the result; “Pastro filtrat” restored the directory. |
+| T-08 | Passed | Isolated browser draft was completed and published; public search/profile showed the stored record. An incomplete publish first returned field errors. |
+| T-09 | Passed | Browser edit changed the fixture phone; public profile then showed the new `tel:` URI. |
+| T-10 | Passed, carried | Day 8 isolated browser category creation and public filter evidence remains valid; Day 12 MariaDB taxonomy tests passed. Category creation was not repeated in the Day 12 browser. |
+| T-11 | Passed | Isolated browser archived the fixture; direct public profile showed not found while admin state retained the record. |
+| T-12 | Passed | Guest admin API requests returned 401; isolated administrator logout redirected direct protected navigation to login. Non-admin and rejected-write database checks passed in MariaDB tests. |
+| T-13 | Passed, carried | Day 9 controlled-clock browser expiry/replacement evidence remains valid; Day 12 MariaDB boundary, priority and eligibility tests passed. The open-page boundary was not repeated in today's browser. |
+| T-14 | Passed, carried | Day 5 failed-map-tile browser fallback/retry evidence remains valid. This failure was not repeated in the Day 12 browser. |
+
+Current observations: 26 published, two draft and two archived seed businesses; 26 local presentation photos; no missing references among 32 business/advertisement image paths. The public Contact page still has no confirmed real contact destination. MySQL 8, physical mobile/Safari, production web-server upload rules and the submission timezone remain unverified.
+
 ## Day 11 work — verified 28 October 2026
 
 - PR #10 was confirmed merged. Local `main` was fast-forwarded to its merge commit before creating `feat/public-website-polish`. No backend, migration, API or seeded-data files were changed.
