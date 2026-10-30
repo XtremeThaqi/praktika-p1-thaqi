@@ -137,7 +137,7 @@ export default function SiteLayout({ children, pathname, navigate }) {
           </div>
         </div>
         <div className="container border-t border-white/15 py-6 text-xs leading-6 text-white/60">
-          Bizneset e Lipjanit · Katalogu i këtij projekti studentor përmban profile ilustruese, jo biznese të verifikuara.
+          Bizneset e Lipjanit · Profile ilustruese dhe, nëse aktivizohen, të dhëna vendndodhjeje nga burime publike. Jo regjistër zyrtar.
         </div>
       </footer>
     </>
