@@ -10,12 +10,13 @@ const sections = [
   ['advertisements', 'Reklamat'],
 ]
 
-export default function AdminLayout({ title, current, navigate, onLogout, children }) {
+export default function AdminLayout({ title, current, navigate, onLogout, confirmLogout, children }) {
   const [signingOut, setSigningOut] = useState(false)
   const [error, setError] = useState('')
 
   async function signOut() {
     if (signingOut) return
+    if (confirmLogout && !confirmLogout()) return
     setSigningOut(true)
     setError('')
     try {

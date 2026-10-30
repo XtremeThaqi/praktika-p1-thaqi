@@ -54,6 +54,8 @@ class AdminBusinessManagementTest extends TestCase
     {
         $this->seed();
         $this->admin();
+        $this->postJson('/api/admin/businesses', ['name' => 'Draft i zgjedhur', 'status' => 'draft'])
+            ->assertCreated()->assertJsonPath('data.status', 'draft');
         $response = $this->postJson('/api/admin/businesses', ['name' => 'Draft i ri'])
             ->assertCreated()->assertJsonPath('data.status', 'draft');
         $id = $response->json('data.id');
