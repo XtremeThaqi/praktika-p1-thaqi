@@ -41,6 +41,7 @@ export default function AdminBusinessFormPage({ id, navigate, onLogout, onSessio
   const [weekdayClose, setWeekdayClose] = useState('17:00')
   const [retry, setRetry] = useState(0)
   const focusSerial = useRef(0)
+  const restoringHistory = useRef(false)
 
   useEffect(() => {
     let active = true
@@ -82,6 +83,21 @@ export default function AdminBusinessFormPage({ id, navigate, onLogout, onSessio
     const warn = (event) => { if (dirty) { event.preventDefault(); event.returnValue = '' } }
     window.addEventListener('beforeunload', warn)
     return () => window.removeEventListener('beforeunload', warn)
+  }, [dirty])
+  useEffect(() => {
+    const warnBack = (event) => {
+      if (restoringHistory.current) {
+        restoringHistory.current = false
+        event.stopImmediatePropagation()
+      } else if (dirty && !window.confirm('Keni ndryshime të paruajtura. Të largoheni?')) {
+        event.stopImmediatePropagation()
+        restoringHistory.current = true
+        window.history.forward()
+      }
+    }
+    // Capture before the app's route listener updates the page on browser Back.
+    window.addEventListener('popstate', warnBack, true)
+    return () => window.removeEventListener('popstate', warnBack, true)
   }, [dirty])
   useLayoutEffect(() => {
     if (!focusRequest) return
