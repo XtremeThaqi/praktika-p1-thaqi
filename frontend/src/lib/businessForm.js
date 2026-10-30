@@ -79,3 +79,24 @@ export function validPoint(latitude, longitude) {
 export function hasNewImage(images, knownIds, altText, kind) {
   return images.some((image) => !knownIds.has(image.id) && image.alt_text === altText && image.kind === kind)
 }
+
+export function confirmArchiveAction(name, dirty, confirm) {
+  return confirm(dirty
+    ? `Ndryshimet e paruajtura do të humbin. Të arkivohet biznesi “${name}”?`
+    : `A dëshironi ta arkivoni biznesin “${name}”?`)
+}
+
+export function confirmLogoutAction(dirty, confirm) {
+  return !dirty || confirm('Ndryshimet e paruajtura do të humbin nëse dilni nga paneli. Të vazhdohet?')
+}
+
+export function guardUnsavedHistory(event, dirty, restoringHistory, history, confirmLeave) {
+  if (restoringHistory.current) {
+    restoringHistory.current = false
+    event.stopImmediatePropagation()
+  } else if (dirty && !confirmLeave()) {
+    event.stopImmediatePropagation()
+    restoringHistory.current = true
+    history.forward()
+  }
+}

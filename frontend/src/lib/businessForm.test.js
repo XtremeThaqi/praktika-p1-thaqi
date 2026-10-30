@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { activeHours, applyWeekdayHours, blankHours, fieldForError, firstInvalidField, focusInvalidField, hasNewImage, isRequired, mapPoint, sectionForField, validPoint } from './businessForm.js'
+import { activeHours, applyWeekdayHours, blankHours, confirmArchiveAction, confirmLogoutAction, fieldForError, firstInvalidField, focusInvalidField, guardUnsavedHistory, hasNewImage, isRequired, mapPoint, sectionForField, validPoint } from './businessForm.js'
 
 test('Monday appears first while Sunday retains day zero', () => {
   assert.deepEqual(blankHours().map((hour) => hour.day_of_week), [1, 2, 3, 4, 5, 6, 0])
@@ -73,4 +73,51 @@ test('an uncertain upload is considered saved only when a matching new image app
   assert.equal(hasNewImage([{ id: 7, alt_text: 'Foto', kind: 'gallery' }], known, 'Foto', 'gallery'), false)
   assert.equal(hasNewImage([{ id: 7, alt_text: 'Foto', kind: 'gallery' }, { id: 8, alt_text: 'Foto', kind: 'logo' }], known, 'Foto', 'gallery'), false)
   assert.equal(hasNewImage([{ id: 8, alt_text: 'Foto', kind: 'gallery' }], known, 'Foto', 'gallery'), true)
+})
+
+test('archiving pending edits requires an explicit discard decision', () => {
+  let prompt = ''
+  assert.equal(confirmArchiveAction('Biznes provë', true, (message) => { prompt = message; return false }), false)
+  assert.match(prompt, /Ndryshimet e paruajtura do të humbin/)
+  assert.match(prompt, /Biznes provë/)
+  assert.equal(confirmArchiveAction('Biznes provë', false, (message) => { prompt = message; return true }), true)
+  assert.doesNotMatch(prompt, /Ndryshimet e paruajtura/)
+})
+
+test('dirty logout can be cancelled while clean logout proceeds directly', () => {
+  let confirmations = 0
+  const reject = () => { confirmations += 1; return false }
+  assert.equal(confirmLogoutAction(true, reject), false)
+  assert.equal(confirmations, 1)
+  assert.equal(confirmLogoutAction(false, reject), true)
+  assert.equal(confirmations, 1)
+})
+
+test('cancelling browser Back restores URL and history without changing the form', async () => {
+  const entries = ['/admin/businesses', '/admin/businesses/1']
+  let index = 1
+  let renderedRoute = entries[index]
+  const formName = 'Unsaved edit'
+  const restoring = { current: false }
+  let accept = false
+  let prompts = 0
+  const history = { forward() { queueMicrotask(() => { index += 1; dispatch() }) } }
+  function dispatch() {
+    let stopped = false
+    guardUnsavedHistory({ stopImmediatePropagation() { stopped = true } }, true, restoring, history,
+      () => { prompts += 1; return accept })
+    if (!stopped) renderedRoute = entries[index]
+  }
+  index -= 1; dispatch()
+  await Promise.resolve()
+  assert.equal(index, 1)
+  assert.equal(renderedRoute, '/admin/businesses/1')
+  assert.equal(formName, 'Unsaved edit')
+  assert.equal(restoring.current, false)
+  assert.equal(prompts, 1)
+  accept = true
+  index -= 1; dispatch()
+  assert.equal(index, 0)
+  assert.equal(renderedRoute, '/admin/businesses')
+  assert.equal(prompts, 2)
 })

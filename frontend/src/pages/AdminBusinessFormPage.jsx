@@ -2,7 +2,7 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import Link from '../components/Link'
 import BusinessLocationPicker from '../components/BusinessLocationPicker'
 import { adminRequest } from '../lib/admin'
-import { activeHours, applyWeekdayHours, blankHours, days, fieldForError, firstInvalidField, focusInvalidField, hasNewImage, isRequired, sectionForField } from '../lib/businessForm'
+import { activeHours, applyWeekdayHours, blankHours, confirmArchiveAction, confirmLogoutAction, days, fieldForError, firstInvalidField, focusInvalidField, guardUnsavedHistory, hasNewImage, isRequired, sectionForField } from '../lib/businessForm'
 import AdminLayout from './AdminLayout'
 
 const empty = { name: '', description: '', category_id: '', settlement_id: '', phone: '', address: '',
@@ -43,6 +43,19 @@ export default function AdminBusinessFormPage({ id, navigate, onLogout, onSessio
   const focusSerial = useRef(0)
   const restoringHistory = useRef(false)
 
+  function showBusiness(item) {
+    setForm({ ...empty, ...item, category_id: item.category_id || '', settlement_id: item.settlement_id || '',
+      latitude: item.latitude ?? '', longitude: item.longitude ?? '',
+      social_links: { ...empty.social_links, ...(item.social_links || {}) },
+      services: item.services.map((service) => service.id) })
+    setHours(blankHours().map((row) => {
+      const stored = item.hours.find((hour) => hour.day_of_week === row.day_of_week)
+      return stored ? { ...stored, enabled: true, opens_at: stored.opens_at?.slice(0, 5) || '',
+        closes_at: stored.closes_at?.slice(0, 5) || '' } : row
+    }))
+    setImages(item.images)
+  }
+
   useEffect(() => {
     let active = true
     setLoadError(''); setLoaded(!id)
@@ -52,17 +65,7 @@ export default function AdminBusinessFormPage({ id, navigate, onLogout, onSessio
         if (!active) return
         setLookups({ categories: categories.data, settlements: settlements.data, services: services.data })
         if (business) {
-          const item = business.data
-          setForm({ ...empty, ...item, category_id: item.category_id || '', settlement_id: item.settlement_id || '',
-            latitude: item.latitude ?? '', longitude: item.longitude ?? '',
-            social_links: { ...empty.social_links, ...(item.social_links || {}) },
-            services: item.services.map((service) => service.id) })
-          setHours(blankHours().map((row) => {
-            const stored = item.hours.find((hour) => hour.day_of_week === row.day_of_week)
-            return stored ? { ...stored, enabled: true, opens_at: stored.opens_at?.slice(0, 5) || '',
-              closes_at: stored.closes_at?.slice(0, 5) || '' } : row
-          }))
-          setImages(item.images)
+          showBusiness(business.data)
         }
         setDirty(false); setLoaded(true)
       }).catch((problem) => {
@@ -85,16 +88,8 @@ export default function AdminBusinessFormPage({ id, navigate, onLogout, onSessio
     return () => window.removeEventListener('beforeunload', warn)
   }, [dirty])
   useEffect(() => {
-    const warnBack = (event) => {
-      if (restoringHistory.current) {
-        restoringHistory.current = false
-        event.stopImmediatePropagation()
-      } else if (dirty && !window.confirm('Keni ndryshime të paruajtura. Të largoheni?')) {
-        event.stopImmediatePropagation()
-        restoringHistory.current = true
-        window.history.forward()
-      }
-    }
+    const warnBack = (event) => guardUnsavedHistory(event, dirty, restoringHistory, window.history,
+      () => window.confirm('Keni ndryshime të paruajtura. Të largoheni?'))
     // Capture before the app's route listener updates the page on browser Back.
     window.addEventListener('popstate', warnBack, true)
     return () => window.removeEventListener('popstate', warnBack, true)
@@ -231,18 +226,21 @@ export default function AdminBusinessFormPage({ id, navigate, onLogout, onSessio
     } catch (problem) { report(problem) }
   }
   async function archive() {
-    if (!window.confirm(`A dëshironi ta arkivoni biznesin “${form.name}”?`)) return
+    if (!confirmArchiveAction(form.name, dirty, (question) => window.confirm(question))) return
     setSaving(true)
     try {
       const response = await adminRequest(`/api/admin/businesses/${savedId}/archive`, { method: 'PATCH' })
-      setForm((old) => ({ ...old, status: response.data.status })); setMessage('Biznesi u arkivua.'); setDirty(false)
+      showBusiness(response.data)
+      setFile(null); setFileKey((value) => value + 1); setImageAlt(''); setIntent('draft')
+      setMessage('Biznesi u arkivua.'); setDirty(false)
     } catch (problem) { report(problem) } finally { setSaving(false) }
   }
   function leave(href) {
     if (!dirty || window.confirm('Keni ndryshime të paruajtura. Të largoheni?')) navigate(href)
   }
 
-  return <AdminLayout title={id ? 'Ndrysho biznesin' : 'Shto biznes'} current="businesses" navigate={leave} onLogout={onLogout}>
+  return <AdminLayout title={id ? 'Ndrysho biznesin' : 'Shto biznes'} current="businesses" navigate={leave} onLogout={onLogout}
+    confirmLogout={() => confirmLogoutAction(dirty, (question) => window.confirm(question))}>
     <Link href="/admin/businesses" navigate={leave} className="mt-5 inline-block text-sm font-semibold underline">← Kthehu te lista</Link>
     {loadError && <div role="alert" className="mt-6 rounded-xl border border-red-200 bg-red-50 p-4 text-red-900">{loadError} <button type="button" className="underline" onClick={() => setRetry((value) => value + 1)}>Provo përsëri</button></div>}
     {!loaded && !loadError && <p role="status" className="mt-6">Duke ngarkuar formularin…</p>}
