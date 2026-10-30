@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { activeHours, applyWeekdayHours, blankHours, fieldForError, firstInvalidField, focusInvalidField, isRequired, mapPoint, sectionForField, validPoint } from './businessForm.js'
+import { activeHours, applyWeekdayHours, blankHours, fieldForError, firstInvalidField, focusInvalidField, hasNewImage, isRequired, mapPoint, sectionForField, validPoint } from './businessForm.js'
 
 test('Monday appears first while Sunday retains day zero', () => {
   assert.deepEqual(blankHours().map((hour) => hour.day_of_week), [1, 2, 3, 4, 5, 6, 0])
@@ -23,6 +23,8 @@ test('hour validation indexes map to the displayed enabled day', () => {
   hours[0].enabled = true
   hours[6].enabled = true
   assert.equal(fieldForError('hours.1.closes_at', hours), 'hours-0-closes_at')
+  assert.equal(fieldForError('hours.1', hours), 'hours')
+  assert.equal(fieldForError('services.0', hours), 'services')
   assert.equal(firstInvalidField({ 'hours.1.closes_at': ['Invalid'], phone: ['Required'] }, hours), 'phone')
 })
 
@@ -64,4 +66,11 @@ test('map click and marker drag use the same precise coordinate conversion', () 
   assert.equal(validPoint('', ''), false)
   assert.equal(validPoint('42.5213123', '21.1226789'), true)
   assert.equal(validPoint('100', '21.1'), false)
+})
+
+test('an uncertain upload is considered saved only when a matching new image appears', () => {
+  const known = new Set([7])
+  assert.equal(hasNewImage([{ id: 7, alt_text: 'Foto', kind: 'gallery' }], known, 'Foto', 'gallery'), false)
+  assert.equal(hasNewImage([{ id: 7, alt_text: 'Foto', kind: 'gallery' }, { id: 8, alt_text: 'Foto', kind: 'logo' }], known, 'Foto', 'gallery'), false)
+  assert.equal(hasNewImage([{ id: 8, alt_text: 'Foto', kind: 'gallery' }], known, 'Foto', 'gallery'), true)
 })

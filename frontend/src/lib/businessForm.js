@@ -21,6 +21,7 @@ export function activeHours(hours) {
 }
 
 export function fieldForError(key, hours) {
+  if (/^hours(?:\.\d+)?$/.test(key)) return 'hours'
   const hour = /^hours\.(\d+)\.(.+)$/.exec(key)
   if (hour) {
     const row = activeHours(hours)[Number(hour[1])]
@@ -73,4 +74,8 @@ export function validPoint(latitude, longitude) {
   const lng = Number(longitude)
   return latitude !== '' && latitude != null && longitude !== '' && longitude != null &&
     Number.isFinite(lat) && Number.isFinite(lng) && Math.abs(lat) <= 90 && Math.abs(lng) <= 180
+}
+
+export function hasNewImage(images, knownIds, altText, kind) {
+  return images.some((image) => !knownIds.has(image.id) && image.alt_text === altText && image.kind === kind)
 }
