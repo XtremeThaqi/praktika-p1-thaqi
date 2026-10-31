@@ -6,9 +6,11 @@ Projekt i praktikës profesionale për të kërkuar biznese, për të parë shë
 
 Ballina publike dhe katalogu funksionojnë me React/JSX, Tailwind dhe Laravel 12. Ballina ngarkon kategoritë dhe bizneset nga API-ja; `/bizneset` mbështet kërkimin, kategorinë, vendbanimin, shërbimin, website-in, orarin e publikuar, renditjen dhe faqëzimin me 12 biznese. Zgjedhjet ruhen në URL dhe rikthehen pas rifreskimit. Reklamat shënohen veçmas; katalogu është projekt studentor me profile ilustruese, jo regjistër zyrtar komunal.
 
-Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Hyrja e administratorit dhe paneli me statistika reale janë në `/admin/login` dhe `/admin/dashboard`. Në `/admin/businesses`, administratori mund të kërkojë, filtrojë, shtojë, ndryshojë, publikojë dhe arkivojë biznese. `/admin/advertisements` menaxhon reklamat, imazhet dhe afatet e tyre. Faqja `/kontakt` nuk shpik kontakte; duhet konfiguruar një kontakt real para dorëzimit. Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
+Kartat hapin profile të plota në `/bizneset/{slug}`: përshkrim, shërbime, orar, imazhe, kontakte dhe hartë interaktive Leaflet. Harta e katalogut tregon vetëm bizneset e faqes aktuale. Hyrja e administratorit dhe paneli me statistika reale janë në `/admin/login` dhe `/admin/dashboard`. Në `/admin/businesses`, administratori mund të kërkojë, filtrojë, shtojë, ndryshojë, publikojë dhe arkivojë biznese. `/admin/advertisements` menaxhon reklamat, imazhet dhe afatet e tyre. Faqja `/kontakt` do të përdorë adresën e autorizuar `anejiakneji55@outlook.com` për regjistrime biznesesh, korrigjime, përditësime dhe kërkesa për reklamim pasi të bashkohet [PR #17](https://github.com/XtremeThaqi/praktika-p1-thaqi/pull/17). Shihni [API-në](docs/public-api.md) dhe [verifikimin](docs/acceptance-tests.md).
 
-![Ballina në desktop](docs/screenshots/home-desktop.png)
+![Ballina aktuale në desktop me fotografi ilustruese](docs/presentation-screenshots/after-home-1440.webp)
+
+Për krahasimin e përmbajtjes para dhe pas rifreskimit, shihni [screenshots e prezantimit](docs/presentation-screenshots/README.md). Pamjet e vjetra te `docs/screenshots/` dokumentojnë fazat e mëparshme të projektit.
 
 ## Teknologjitë dhe kërkesat
 
@@ -176,6 +178,8 @@ Komanda kërkon emrin, emailin dhe një fjalëkalim të paktën 12 karaktere me 
 Në zhvillim, hapni frontend-in dhe backend-in në të njëjtin host `127.0.0.1` si në komandat e mësipërme. Vite i kalon `/api` dhe `/sanctum` te Laravel. Konfiguroni `SANCTUM_STATEFUL_DOMAINS` për origjinën e frontend-it; sesionet përdorin cookies dhe mbrojtje CSRF. Për vendosje me HTTPS, përdorni `APP_DEBUG=false`, `SESSION_SECURE_COOKIE=true`, një host/origjinë të saktë dhe konfigurimin përkatës të domain-it në `.env`. Mos e çaktivizoni CSRF për ta bërë hyrjen të funksionojë.
 
 `POST /api/admin/login`, `GET /api/admin/me`, `GET /api/admin/dashboard`, `POST /api/admin/logout` dhe endpoint-et e menaxhimit të bizneseve përshkruhen te [API-ja](docs/public-api.md). Paneli numëron bizneset sipas statusit dhe të gjitha reklamat aktualisht të vlefshme nga databaza. Numri i reklamave mund të ndryshojë me kohën pa ndryshuar kodin. Lista dhe formulari administrues mbështesin krijimin e drafteve, ndryshimin, publikimin, arkivimin dhe menaxhimin e imazheve.
+
+Formulari i biznesit ndan ruajtjen e draftit nga publikimi, tregon fushat e detyrueshme sipas veprimit dhe e çon fokusin te gabimi i parë i validimit. Administratori zgjedh pin-in në hartën Leaflet ose përdor koordinatat manuale; vendndodhja konfirmohet veçmas. Seksionet e formularit mbulojnë të dhënat bazë, vendndodhjen, shërbimet/orarin dhe median/lidhjet. Ndryshimet e paruajtura kërkojnë konfirmim para largimit, arkivimit ose daljes nga paneli.
 
 Faqet `/admin/categories`, `/admin/settlements` dhe `/admin/services` lejojnë administratorin të kërkojë, shtojë, ndryshojë dhe fshijë zërat e katalogut. Emrat e rinj marrin slug unik; ndryshimi i emrit nuk ndryshon slug-un ekzistues. Kategoritë dhe vendbanimet që përdoren nga cilido biznes, edhe draft ose i arkivuar, nuk fshihen. Për fshirjen e një shërbimi duhet të shkruhet emri i tij; lidhjet me bizneset hiqen, por bizneset ruhen. Ndryshimet shfaqen në filtrat publikë dhe formularët e bizneseve përmes API-së ekzistuese. Rrugët dhe rregullat janë te [API-ja](docs/public-api.md), ndërsa prova T-10 te [skenarët e pranimit](docs/acceptance-tests.md).
 
