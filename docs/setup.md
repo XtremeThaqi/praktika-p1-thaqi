@@ -43,6 +43,14 @@ php artisan serve --host=127.0.0.1 --port=8000
 
 Migrimet ruajnë tabelat e Laravel/Sanctum dhe shtojnë `categories`, `settlements`, `services`, `businesses`, `business_service`, `business_hours`, `business_images` dhe `advertisements`.
 
+Për të krijuar llogarinë e parë të administratorit, nga `backend/` ekzekutoni:
+
+```powershell
+php artisan admin:create
+```
+
+Komanda kërkon në mënyrë interaktive emrin, adresën e email-it dhe fjalëkalimin e administratorit, si edhe konfirmimin e fjalëkalimit.
+
 Për të mbushur bazën me të dhëna demonstrimi, nga `backend/`:
 
 ```powershell
