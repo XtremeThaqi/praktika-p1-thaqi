@@ -4,7 +4,7 @@ Source of truth: `Projekti-01-Katalogu-i-bizneseve.pdf`, version 1.0, 6 October 
 
 ## A. Executive summary
 
-The core public directory, administrator workflows, seeded data, maps and advertisements are functional in the tested local environment. No failing regression test or confirmed critical source-code defect was found. Final submission is **not yet ready** against the PDF: the required public correction/advertising contact destination is still absent, and mentor access, the deadline timezone and the required demo/presentation have not been confirmed. T-06 remains pending for device-level telephone, email and directions handling.
+The core public directory, administrator workflows, seeded data, maps and advertisements are functional in the tested local environment. No failing regression test or confirmed critical source-code defect was found. The student authorized `anejiakneji55@outlook.com`; [PR #17](https://github.com/XtremeThaqi/praktika-p1-thaqi/pull/17) configures it on the public Contact page, but remains unmerged. Final submission is **not yet ready**: mentor access, the deadline timezone and the required demo/presentation have not been confirmed. T-06 remains pending for device-level telephone, email and directions handling.
 
 ## B. PDF compliance matrix
 
@@ -16,7 +16,7 @@ The core public directory, administrator workflows, seeded data, maps and advert
 | Search from homepage by button or Enter | Required | `SearchForm.jsx`, `DirectoryPage.jsx` | T-01 browser evidence and current live search for Mangall. | PASS |
 | Dynamic homepage categories and selected businesses | Required | `HomePage.jsx`, lookup API | Six categories and six varied cards loaded from current database today. | PASS |
 | Sponsored homepage placement distinct from organic results | Required | `Advertisement.jsx`, `AdvertisementController.php` | Current browser displayed a labeled “Reklamë” placement; ad tests passed. | PASS |
-| Footer information and a usable correction/advertising contact | Required | `SiteLayout.jsx`, `ContactPage.jsx` | Footer truthfully identifies a student project; Contact page still says address is being confirmed. | FAIL — real administrator contact channel missing. |
+| Footer information and a usable correction/advertising contact | Required | `SiteLayout.jsx`, `ContactPage.jsx` | Footer truthfully identifies a student project. PR #17 shows the authorized email for registrations, corrections, updates and advertising; rendered component output has matching visible text and `mailto:` target. | PARTIAL — PR #17 is open, so current `main` still has the old notice; interactive email handler not tested. |
 | Directory cards, photos/fallback, concise text and total | Required | `BusinessCard.jsx`, `DirectoryPage.jsx` | Current directory showed photographed illustrative cards and appropriate photo fallback; 29 published results. | PASS |
 | Name/description search, case and whitespace handling | Required | `BusinessController.php`, `BusinessFiltersTest.php` | Full backend suites passed; T-01 browser case/whitespace evidence recorded. | PASS |
 | Dynamic category, settlement and service filters; website and hours filters | Required | `DirectoryPage.jsx`, `BusinessController.php` | Current website filter returned precisely the three sourced listings; T-02/T-03 and filter tests passed. | PASS |
@@ -83,14 +83,14 @@ The current development database was only read: 36 businesses (29 published, thr
 ## F. Submission checklist
 
 - **Complete in repository:** GitHub source, Laravel/React code, migrations and seeders, `.env.example`, install guide, API/acceptance documentation, photo attribution and screenshots. PRs #13–#15 are merged into `main`; local `main` matched `origin/main` before this audit branch.
-- **Student action required:** provide one real public project contact channel and publish it on the Contact page; confirm mentor collaborator access and the mentor's deadline timezone; record a live demonstration or 2–3 minute video and prepare the 5–7 minute presentation.
+- **Student action required:** review and merge PR #17 to publish the authorized contact channel; confirm mentor collaborator access and the mentor's deadline timezone; record a live demonstration or 2–3 minute video and prepare the 5–7 minute presentation.
 - **Cannot verify from repository:** mentor invitation acceptance, off-repository video/presentation, live URL or final submission. No deployment is claimed.
 
 Suggested **2–3 minute recording**: homepage search/category → filtered directory, page and map → sourced profile, phone/directions links without placing a call → administrator draft/publish/edit/archive → active versus expired ad. Suggested **5–7 minute presentation**: purpose and honest data model (1 minute), React/Laravel/MySQL architecture (1), public demo (2), administrator/data validation/security (2), limitations and next steps (1). Prepare a test-only admin account and avoid displaying credentials.
 
 ## G. Outstanding defects and limitations
 
-1. **High — required contact destination missing.** The Contact page explicitly says the administrator address is unconfirmed. This prevents the PDF's correction/advertising contact flow. A real channel must come from the student; none was invented.
+1. **High until merge — required contact destination pending.** The student supplied and authorized `anejiakneji55@outlook.com`. PR #17 adds the visible address and matching `mailto:` link; current `main` still has the old notice until review and merge. No email was sent and browser automation timed out, so a live handler was not verified.
 2. **High for acceptance — T-06 Pending.** Stored phone, email, address, marker, popup and direction URLs agree for the three sourced profiles, but no actual telephone/email/directions handler was exercised on a suitable device. Do not claim full T-06 passage.
 3. **High for submission evidence — external deliverables unconfirmed.** Mentor access, deadline timezone and live demo/video/presentation are required but not verified. The original four-week Git cadence also lacks evidence for the first two weeks.
 4. **Medium — target-environment validation incomplete.** MySQL 8, production web-server upload restrictions, HTTPS configuration and physical mobile/Safari were not tested. XAMPP's upload temporary directory had caused a previous local upload failure until a writable process setting was used.
@@ -100,16 +100,16 @@ Suggested **2–3 minute recording**: homepage search/category → filtered dire
 
 ## H. Changes made
 
-Only submission-facing documentation was changed on a separate review branch: README's current screenshot/form description and Neptun's broken source citations. This audit report records evidence and limitations. No code, migrations, seed data, user records or production configuration changed. The review PR is left unmerged.
+This documentation branch updates README's current screenshot/form description and contact note, Neptun's broken source citations and this audit report. The separate PR #17 changes only the Contact page. Its 32 frontend tests, production build and rendered email-link check passed; browser automation timed out. Neither PR changes migrations, seed data, user records or production configuration. Both remain unmerged.
 
 ## I. Final verdict
 
-**NOT READY — BLOCKING ISSUES.** The tested core application is strong enough for a student-project demonstration, but the PDF explicitly requires a usable public contact path and submission materials. Those cannot be truthfully marked complete yet. After the real contact channel and submission assets are supplied/confirmed, the verdict can be revisited without a new feature sprint.
+**NOT READY — BLOCKING ISSUES.** The tested core application is strong enough for a student-project demonstration. A public contact path is prepared in PR #17 but not yet on `main`; mentor access and the required submission materials remain unconfirmed. Review this verdict after the open PRs are merged and the external deliverables are verified, without starting a new feature sprint.
 
 ## J. Final actions for the student
 
-1. Provide a real email or other contact channel authorized for public display; add it to the Contact page and verify the link.
-2. Review and merge the small documentation PR before submission; preserve current `main` history.
+1. Review and merge the focused Contact-page PR #17 to publish the authorized email. The displayed address and `mailto:` target match in the rendered component; interactive handler verification remains pending.
+2. Review and merge the separate documentation PR #16 before submission; preserve current `main` history.
 3. Confirm the mentor's GitHub collaborator access and the exact deadline timezone. The PDF says **1 November 2026, 23:59**, but does not specify a timezone.
 4. Record the short demonstration or arrange a live one, and prepare the oral presentation. Verify the actual submitted files/links with the mentor.
 5. On a suitable device, exercise T-06 handlers without unsolicited calls/messages. Keep T-06 Pending until that evidence exists.
