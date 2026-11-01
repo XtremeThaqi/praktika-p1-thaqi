@@ -103,18 +103,23 @@ class AdminAdvertisementController extends Controller
 
     public function update(Request $request, Advertisement $advertisement): JsonResponse
     {
-        $advertisement->update($this->validatedFields($request));
+        $data = $this->validatedFields($request);
+        if ((int) $data['business_id'] !== $advertisement->business_id) {
+            throw ValidationException::withMessages(['business_id' => 'Për të ndryshuar biznesin, zgjidhni edhe imazhin e reklamës.']);
+        }
+        $advertisement->update($data);
 
         return $this->detail($advertisement);
     }
 
     public function replaceImage(Request $request, Advertisement $advertisement): JsonResponse
     {
+        $data = $request->has('business_id') ? $this->validatedFields($request) : [];
         $image = $request->validate([
             'image' => ['nullable', new SafeImage],
             'business_image_id' => ['nullable', 'integer'],
         ]);
-        $photo = $this->selectedPhoto($image['business_image_id'] ?? null, $advertisement->business_id);
+        $photo = $this->selectedPhoto($image['business_image_id'] ?? null, $data['business_id'] ?? $advertisement->business_id);
         if (isset($image['image']) === (bool) $photo) {
             throw ValidationException::withMessages(['image' => 'Zgjidhni një fotografi të biznesit ose ngarkoni një banner.']);
         }
@@ -126,7 +131,7 @@ class AdminAdvertisementController extends Controller
         }
         $oldPath = $advertisement->image_path;
         try {
-            $advertisement->update(['image_path' => '/storage/'.$newPath]);
+            DB::transaction(fn () => $advertisement->update($data + ['image_path' => '/storage/'.$newPath]));
         } catch (\Throwable $error) {
             Storage::disk('public')->delete($newPath);
             throw $error;

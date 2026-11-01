@@ -6,6 +6,7 @@ import AdminLayout from './AdminLayout'
 import { placementLabels, statusLabels } from './AdminAdvertisementListPage'
 import { previewAdvertisementDestination } from '../lib/advertisementDestination'
 import { advertisementAltText } from '../lib/advertisementImage'
+import { saveAdvertisementEditWithImage } from '../lib/advertisementSave'
 
 const emptyForm = {
   business_id: '', placement: 'home_banner', alt_text: '', destination: '',
@@ -22,7 +23,6 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
   const [form, setForm] = useState(emptyForm)
   const [businesses, setBusinesses] = useState(null)
   const [selectedBusiness, setSelectedBusiness] = useState(null)
-  const [savedBusinessId, setSavedBusinessId] = useState(null)
   const [useExternal, setUseExternal] = useState(false)
   const [altTouched, setAltTouched] = useState(false)
   const [businessQuery, setBusinessQuery] = useState('')
@@ -67,7 +67,6 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
           ends_at_local: data.ends_at_local, priority: data.priority, is_active: data.is_active,
         })
         setSelectedBusiness(data.business)
-        setSavedBusinessId(data.business.id)
         setUseExternal(Boolean(data.destination))
         setStoredImage(data.image_path)
         setImageMode('existing')
@@ -130,6 +129,7 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
   async function save(event) {
     event.preventDefault()
     if (saving) return
+    let replacingImage = false
     setSaving(true)
     setErrors({})
     setError('')
@@ -145,36 +145,28 @@ export default function AdminAdvertisementFormPage({ id, navigate, onLogout, onS
         setErrors({ image: ['Zgjidhni një fotografi të biznesit ose ngarkoni një banner.'] })
         return
       }
-      let options
       if (id) {
-        const changingBusiness = String(savedBusinessId) !== String(form.business_id)
-        options = { method: 'PUT', body: JSON.stringify(changingBusiness ? { ...payload, is_active: false } : payload) }
+        replacingImage = needsImage
+        if (needsImage) {
+          await saveAdvertisementEditWithImage(adminRequest, id, payload, imageMode, image, photoId)
+        } else {
+          await adminRequest(`/api/admin/advertisements/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
+        }
       } else {
         const body = new FormData()
         Object.entries(payload).forEach(([key, value]) => body.set(key, key === 'is_active' ? (value ? '1' : '0') : String(value)))
         if (imageMode === 'upload' && image) body.set('image', image)
         if (imageMode === 'business' && photoId) body.set('business_image_id', photoId)
-        options = { method: 'POST', body }
-      }
-      await adminRequest(`/api/admin/advertisements${id ? `/${id}` : ''}`, options)
-      if (id && needsImage) {
-        const body = new FormData()
-        if (imageMode === 'upload') body.set('image', image)
-        else body.set('business_image_id', photoId)
-        try {
-          await adminRequest(`/api/admin/advertisements/${id}/image`, { method: 'POST', body })
-        } catch (problem) {
-          report(problem)
-          setFeedback('Të dhënat u ruajtën, por imazhi nuk u ndryshua. Provoni përsëri.')
-          return
-        }
-      }
-      if (id && String(savedBusinessId) !== String(form.business_id) && form.is_active) {
-        await adminRequest(`/api/admin/advertisements/${id}`, { method: 'PUT', body: JSON.stringify(payload) })
+        await adminRequest('/api/admin/advertisements', { method: 'POST', body })
       }
       navigate('/admin/advertisements')
     } catch (problem) {
       report(problem)
+      if (replacingImage && ![401, 403].includes(problem.status)) {
+        setError(problem.status === 422
+          ? 'Ndryshimet nuk u ruajtën. Reklama dhe imazhi ekzistues mbetën të pandryshuar.'
+          : 'Ruajtja nuk u konfirmua. Kontrolloni reklamën para se të provoni përsëri.')
+      }
     } finally {
       setSaving(false)
     }
