@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use App\Models\Advertisement;
+use App\Models\BusinessImage;
 use App\Rules\SafeImage;
 use Carbon\CarbonImmutable;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 
@@ -67,12 +69,21 @@ class AdminAdvertisementController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $this->validatedFields($request);
-        $image = $request->validate(['image' => ['required', new SafeImage]])['image'];
+        $image = $request->validate([
+            'image' => ['nullable', new SafeImage],
+            'business_image_id' => ['nullable', 'integer'],
+        ]);
+        $photo = $this->selectedPhoto($image['business_image_id'] ?? null, (int) $data['business_id']);
+        if (isset($image['image']) === (bool) $photo) {
+            throw ValidationException::withMessages(['image' => 'Zgjidhni një fotografi të biznesit ose ngarkoni një banner.']);
+        }
         $storedPath = null;
         try {
-            $advertisement = DB::transaction(function () use ($data, $image, &$storedPath) {
+            $advertisement = DB::transaction(function () use ($data, $image, $photo, &$storedPath) {
                 $advertisement = Advertisement::create($data + ['image_path' => '/storage/pending']);
-                $storedPath = $image->store('advertisements/'.$advertisement->id, 'public');
+                $storedPath = $photo
+                    ? $this->copyPhoto($photo, $advertisement->id)
+                    : $image['image']->store('advertisements/'.$advertisement->id, 'public');
                 if (! $storedPath) {
                     throw ValidationException::withMessages(['image' => 'Imazhi nuk mund të ruhej. Provoni përsëri.']);
                 }
@@ -92,21 +103,35 @@ class AdminAdvertisementController extends Controller
 
     public function update(Request $request, Advertisement $advertisement): JsonResponse
     {
-        $advertisement->update($this->validatedFields($request));
+        $data = $this->validatedFields($request);
+        if ((int) $data['business_id'] !== $advertisement->business_id) {
+            throw ValidationException::withMessages(['business_id' => 'Për të ndryshuar biznesin, zgjidhni edhe imazhin e reklamës.']);
+        }
+        $advertisement->update($data);
 
         return $this->detail($advertisement);
     }
 
     public function replaceImage(Request $request, Advertisement $advertisement): JsonResponse
     {
-        $image = $request->validate(['image' => ['required', new SafeImage]])['image'];
-        $newPath = $image->store('advertisements/'.$advertisement->id, 'public');
+        $data = $request->has('business_id') ? $this->validatedFields($request) : [];
+        $image = $request->validate([
+            'image' => ['nullable', new SafeImage],
+            'business_image_id' => ['nullable', 'integer'],
+        ]);
+        $photo = $this->selectedPhoto($image['business_image_id'] ?? null, $data['business_id'] ?? $advertisement->business_id);
+        if (isset($image['image']) === (bool) $photo) {
+            throw ValidationException::withMessages(['image' => 'Zgjidhni një fotografi të biznesit ose ngarkoni një banner.']);
+        }
+        $newPath = $photo
+            ? $this->copyPhoto($photo, $advertisement->id)
+            : $image['image']->store('advertisements/'.$advertisement->id, 'public');
         if (! $newPath) {
             throw ValidationException::withMessages(['image' => 'Imazhi nuk mund të ruhej. Provoni përsëri.']);
         }
         $oldPath = $advertisement->image_path;
         try {
-            $advertisement->update(['image_path' => '/storage/'.$newPath]);
+            DB::transaction(fn () => $advertisement->update($data + ['image_path' => '/storage/'.$newPath]));
         } catch (\Throwable $error) {
             Storage::disk('public')->delete($newPath);
             throw $error;
@@ -194,6 +219,46 @@ class AdminAdvertisementController extends Controller
             && ! Advertisement::where('image_path', $path)->exists()) {
             Storage::disk('public')->delete(substr($path, strlen('/storage/')));
         }
+    }
+
+    private function selectedPhoto(?int $id, int $businessId): ?BusinessImage
+    {
+        if ($id === null) {
+            return null;
+        }
+
+        $photo = BusinessImage::whereKey($id)->where('business_id', $businessId)->where('kind', 'gallery')->first();
+        if (! $photo) {
+            throw ValidationException::withMessages(['business_image_id' => 'Fotografia nuk i përket biznesit të zgjedhur.']);
+        }
+
+        return $photo;
+    }
+
+    private function copyPhoto(BusinessImage $photo, int $advertisementId): string
+    {
+        $path = $photo->path;
+        $businessPrefix = '/storage/businesses/'.$photo->business_id.'/';
+        if (str_starts_with($path, $businessPrefix)
+            && ! preg_match('~[/\\\\]~', substr($path, strlen($businessPrefix)))) {
+            $source = Storage::disk('public')->path(substr($path, strlen('/storage/')));
+        } elseif (preg_match('~^/demo/photos/[0-9]{2}\.jpg$~', $path)) {
+            $source = public_path(ltrim($path, '/'));
+        } else {
+            throw ValidationException::withMessages(['business_image_id' => 'Fotografia nuk është e disponueshme.']);
+        }
+        $extension = strtolower(pathinfo($source, PATHINFO_EXTENSION));
+        $allowed = ['jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'png' => 'image/png', 'webp' => 'image/webp'];
+        if (! is_file($source) || ! isset($allowed[$extension]) || mime_content_type($source) !== $allowed[$extension]) {
+            throw ValidationException::withMessages(['business_image_id' => 'Fotografia nuk është e disponueshme.']);
+        }
+        $target = 'advertisements/'.$advertisementId.'/'.Str::uuid().'.'.$extension;
+        $contents = file_get_contents($source);
+        if ($contents === false || ! Storage::disk('public')->put($target, $contents)) {
+            throw ValidationException::withMessages(['business_image_id' => 'Fotografia nuk mund të ruhej. Provoni përsëri.']);
+        }
+
+        return $target;
     }
 
     private function detail(Advertisement $advertisement, int $status = 200): JsonResponse

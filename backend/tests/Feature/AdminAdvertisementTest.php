@@ -44,6 +44,142 @@ class AdminAdvertisementTest extends TestCase
         ));
     }
 
+    public function test_advertisement_can_copy_its_business_photo_without_an_upload(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::where('slug', 'demo-biznes-02')->firstOrFail();
+        $photo = $business->images()->where('kind', 'gallery')->firstOrFail();
+
+        $response = $this->postJson('/api/admin/advertisements', $this->fields($business, [
+            'destination' => null, 'business_image_id' => $photo->id,
+        ]))->assertCreated()->assertJsonPath('data.destination', null);
+        $adId = $response->json('data.id');
+        $adPath = $response->json('data.image_path');
+        $this->assertStringStartsWith('/storage/advertisements/'.$adId.'/', $adPath);
+        Storage::disk('public')->assertExists(substr($adPath, strlen('/storage/')));
+        $photo->delete();
+        Storage::disk('public')->assertExists(substr($adPath, strlen('/storage/')));
+
+        $this->post("/api/admin/advertisements/$adId/image", ['image' => $this->image()],
+            ['Accept' => 'application/json'])->assertOk();
+        Storage::disk('public')->assertMissing(substr($adPath, strlen('/storage/')));
+        $this->deleteJson("/api/admin/advertisements/$adId")->assertOk();
+        $this->assertDatabaseHas('businesses', ['id' => $business->id]);
+    }
+
+    public function test_business_photo_selection_rejects_other_businesses_and_missing_images(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::where('slug', 'demo-biznes-02')->firstOrFail();
+        $other = Business::where('slug', 'demo-biznes-03')->firstOrFail();
+        $otherPhoto = $other->images()->firstOrFail();
+
+        $this->postJson('/api/admin/advertisements', $this->fields($business, [
+            'business_image_id' => $otherPhoto->id,
+        ]))->assertUnprocessable()->assertJsonValidationErrors('business_image_id');
+        $this->postJson('/api/admin/advertisements', $this->fields($business))
+            ->assertUnprocessable()->assertJsonValidationErrors('image');
+        $withoutPhoto = Business::where('slug', 'demo-biznes-30')->firstOrFail();
+        $this->assertSame(0, $withoutPhoto->images()->count());
+        $this->postJson('/api/admin/advertisements', $this->fields($withoutPhoto))
+            ->assertUnprocessable()->assertJsonValidationErrors('image');
+        $this->post('/api/admin/advertisements', $this->fields($business, [
+            'business_image_id' => $otherPhoto->id,
+        ]) + ['image' => $this->image()], ['Accept' => 'application/json'])
+            ->assertUnprocessable();
+    }
+
+    public function test_uploaded_business_photo_is_copied_into_advertisement_storage(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::where('slug', 'demo-biznes-02')->firstOrFail();
+        $source = 'businesses/'.$business->id.'/gallery.jpg';
+        Storage::disk('public')->put($source, file_get_contents(public_path('demo/photos/02.jpg')));
+        $photo = $business->images()->create([
+            'path' => '/storage/'.$source, 'alt_text' => 'Fotografi e biznesit',
+            'kind' => 'gallery', 'sort_order' => 99,
+        ]);
+
+        $response = $this->postJson('/api/admin/advertisements', $this->fields($business, [
+            'business_image_id' => $photo->id,
+        ]))->assertCreated();
+        $adPath = substr($response->json('data.image_path'), strlen('/storage/'));
+        Storage::disk('public')->assertExists($adPath);
+        Storage::disk('public')->delete($source);
+        Storage::disk('public')->assertExists($adPath);
+    }
+
+    public function test_failed_combined_edit_preserves_active_advertisement_and_its_image(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::where('slug', 'demo-biznes-02')->firstOrFail();
+        $other = Business::where('slug', 'demo-biznes-03')->firstOrFail();
+        $created = $this->post('/api/admin/advertisements', $this->fields($business) + ['image' => $this->image()],
+            ['Accept' => 'application/json'])->assertCreated();
+        $ad = Advertisement::findOrFail($created->json('data.id'));
+        $original = $ad->getAttributes();
+        $oldFile = substr($ad->image_path, strlen('/storage/'));
+
+        $this->post("/api/admin/advertisements/$ad->id/image", $this->fields($other, [
+            'alt_text' => 'Përshkrimi i biznesit tjetër', 'priority' => 222,
+        ]) + ['image' => UploadedFile::fake()->create('bad.php', 1, 'text/plain')],
+            ['Accept' => 'application/json'])->assertUnprocessable()->assertJsonValidationErrors('image');
+        $this->assertSame($original, $ad->fresh()->getAttributes());
+        Storage::disk('public')->assertExists($oldFile);
+        $this->getJson('/api/advertisements?placement=home_banner')
+            ->assertJsonPath('data.0.id', $ad->id)
+            ->assertJsonPath('data.0.alt_text', $original['alt_text'])
+            ->assertJsonPath('data.0.image_path', $original['image_path']);
+
+        $missingPhoto = $other->images()->create([
+            'path' => '/storage/businesses/'.$other->id.'/missing.jpg',
+            'alt_text' => 'Fotografi që mungon', 'kind' => 'gallery', 'sort_order' => 99,
+        ]);
+        $this->post("/api/admin/advertisements/$ad->id/image", $this->fields($other, [
+            'alt_text' => 'Përshkrimi i biznesit tjetër',
+        ]) + ['business_image_id' => $missingPhoto->id], ['Accept' => 'application/json'])
+            ->assertUnprocessable()->assertJsonValidationErrors('business_image_id');
+        $this->assertSame($original, $ad->fresh()->getAttributes());
+        Storage::disk('public')->assertExists($oldFile);
+
+        $this->putJson("/api/admin/advertisements/$ad->id", $this->fields($other))
+            ->assertUnprocessable()->assertJsonValidationErrors('business_id');
+        $this->assertSame($original, $ad->fresh()->getAttributes());
+    }
+
+    public function test_combined_edit_changes_business_description_and_image_together(): void
+    {
+        $this->seed();
+        $this->admin();
+        Storage::fake('public');
+        $business = Business::where('slug', 'demo-biznes-02')->firstOrFail();
+        $other = Business::where('slug', 'demo-biznes-03')->firstOrFail();
+        $photo = $other->images()->where('kind', 'gallery')->firstOrFail();
+        $created = $this->post('/api/admin/advertisements', $this->fields($business) + ['image' => $this->image()],
+            ['Accept' => 'application/json'])->assertCreated();
+        $ad = Advertisement::findOrFail($created->json('data.id'));
+        $oldFile = substr($ad->image_path, strlen('/storage/'));
+
+        $updated = $this->post("/api/admin/advertisements/$ad->id/image", $this->fields($other, [
+            'alt_text' => 'Fotografia e biznesit të ri', 'priority' => 222,
+            'destination' => null,
+        ]) + ['business_image_id' => $photo->id], ['Accept' => 'application/json'])
+            ->assertOk()->assertJsonPath('data.business.id', $other->id)
+            ->assertJsonPath('data.alt_text', 'Fotografia e biznesit të ri')
+            ->assertJsonPath('data.status', 'active_now');
+        $this->assertNotSame($created->json('data.image_path'), $updated->json('data.image_path'));
+        Storage::disk('public')->assertMissing($oldFile);
+        Storage::disk('public')->assertExists(substr($updated->json('data.image_path'), strlen('/storage/')));
+    }
+
     public function test_administrator_can_list_filter_create_edit_toggle_and_delete_advertisements(): void
     {
         $this->travelTo(CarbonImmutable::parse('2026-10-27T12:00:00Z'));
