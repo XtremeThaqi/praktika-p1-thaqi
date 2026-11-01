@@ -42,7 +42,9 @@ Artisan::command('admin:bootstrap-if-missing', function () {
     ]);
 
     if ($validator->fails()) {
-        throw new RuntimeException('Administrator bootstrap variables are invalid.');
+        // Report only field names, never credentials or supplied values.
+        $fields = implode(', ', array_keys($validator->errors()->messages()));
+        throw new RuntimeException('Administrator bootstrap validation failed for: '.$fields);
     }
 
     $admin = new User($data);
